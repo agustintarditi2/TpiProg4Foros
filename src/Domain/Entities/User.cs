@@ -1,5 +1,5 @@
 using MyApp.Domain.Enums;
-namespace Domain.Entities;
+namespace MyApp.Domain.Entities;
 public class User
 {
     // ID: Esto lo requiere EF, pareciera ser.
@@ -8,13 +8,16 @@ public class User
     public UserRole Role {get; private set;}
     public string Name {get; private set;}
     
-    public long dob {get; private set;}
-    public User() { null! }
-    public User(string userName, long dob)
+    public DateOnly DateOfBirth {get; private set;}
+    public User() { Name = null!; }
+    public User(string name, DateOnly dateOfBirth)
     {
-        this.role = UserRole.USER;
-        this.name = userName;
-        this.dob = dob;
+        if (string.IsNullOrWhiteSpace(name))
+            throw new Exception("Name is required.");
+        if (dateOfBirth > DateOnly.FromDateTime(DateTime.UtcNow))
+            throw new Exception("Date of birth cannot be in the future.");
+        this.Role = UserRole.USER;
+        this.Name = name.Trim();
+        this.DateOfBirth = dateOfBirth;
     }
-
 }
