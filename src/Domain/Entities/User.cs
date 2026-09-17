@@ -1,16 +1,16 @@
 using MyApp.Domain.Enums;
+using MyApp.Domain.ValueObjects;
 namespace MyApp.Domain.Entities;
-public class User
+public sealed class User
 {
-    // ID: Esto lo requiere EF, pareciera ser.
-    public int Id {get; private set;}
     // El rol es un enum, está tomado del archivo Domain/Enums/UserRoles.cs.
     public UserRole Role {get; private set;}
     public string Name {get; private set;}
     
     public DateOnly DateOfBirth {get; private set;}
+    public EmailAddress Email {get; private set;}
     public User() { Name = null!; }
-    public User(string name, DateOnly dateOfBirth)
+    public User(string name, DateOnly dateOfBirth, string email)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new Exception("Name is required.");
@@ -19,5 +19,14 @@ public class User
         this.Role = UserRole.USER;
         this.Name = name.Trim();
         this.DateOfBirth = dateOfBirth;
+        this.Email = EmailAddress.Create(email);
+    }
+    public void PromoteOrDemote(UserRole userRole)
+    {
+        this.Role = userRole;
+    }
+    public void Rename(string newName)
+    {
+        this.Name = newName.Trim();
     }
 }
