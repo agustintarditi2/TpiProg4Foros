@@ -22,5 +22,7 @@ public sealed record BodyText
 
         return new BodyText(normalized);
     }
+
     public override string ToString() => Value;
+    
 }
