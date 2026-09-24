@@ -22,6 +22,7 @@ public sealed record BodyText
 
         return new BodyText(normalized);
     }
+    public static BodyText FromPersistence(string value) => new(value);
 
     public override string ToString() => Value;
     
