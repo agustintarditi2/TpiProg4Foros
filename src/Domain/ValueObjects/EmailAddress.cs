@@ -1,6 +1,8 @@
+using MyApp.Domain.Exceptions;
+
 namespace MyApp.Domain.ValueObjects;
 
-public readonly record struct EmailAddress
+public sealed record EmailAddress
 {
     public string Value {get;}
     private EmailAddress(string value)
@@ -11,18 +13,18 @@ public readonly record struct EmailAddress
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new Exception("The username must have content.");
+            throw new DomainException("The email must have content.");
         }
         var trimmed = value.Trim();
 
         if (trimmed.Length > 254)
-            throw new Exception("Email is too long.");
+            throw new DomainException("Email is too long.");
 
         if (!IsValidFormat(trimmed))
-            throw new Exception("Email format is invalid.");
+            throw new DomainException("Email format is invalid.");
 
         var at = trimmed.LastIndexOf('@');
-        var local = trimmed[..at];
+        var local = trimmed[..at].ToLowerInvariant();
         var domain = trimmed[(at + 1)..].ToLowerInvariant();
 
                 return new EmailAddress($"{local}@{domain}");
