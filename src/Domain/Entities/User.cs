@@ -27,6 +27,7 @@ public sealed class User
         Email = EmailAddress.Create(email);
         Password = PasswordHash.Create(hash);
         DateCreated = now;
+        Id = UserId.New();
     }
     public void SetRole(UserRole userRole)
     {

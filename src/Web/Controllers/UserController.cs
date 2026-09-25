@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Application.Interfaces;
+using MyApp.Application.Users;
 using MyApp.Domain.Entities;
+using MyApp.Domain.ValueObjects;
+using MyApp.Web.Contracts;
 
 namespace MyApp.Web.UserController;
 
@@ -10,17 +13,30 @@ namespace MyApp.Web.UserController;
 
 public class UserController : ControllerBase
 {
-    private IUserRepository _userRepository;
-    public UserController(IUserRepository userRepository)
+    private readonly IUserRepository _userRepository;
+    private readonly RegisterUserHandler _registerUser;
+    public UserController(IUserRepository userRepository, RegisterUserHandler registerUser)
     {
+        _registerUser = registerUser;
         _userRepository = userRepository;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<User>>> Get()
+    public ActionResult<List<User>> Get()
     {
-        var users = await _userRepository.Get();
+        var users = _userRepository.Get();
         return Ok(users);
+    }
+    [HttpPost]
+    public async Task<ActionResult<UserId>> RegisterUser(RegisterUserDTO sentUser)
+    {
+        var newUser = new RegisterUserCommand(
+            sentUser.Name,
+            sentUser.DateOfBirth,
+            sentUser.Email,
+            sentUser.PlainPassword);
+        var registeredUserId = await _registerUser.Handle(newUser);
+        return Ok(registeredUserId);
     }
     
 }
