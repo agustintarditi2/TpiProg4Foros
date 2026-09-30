@@ -11,5 +11,4 @@ public interface IUserRepository
     void Delete(User entity);
     void Update(User entity);
     Task<bool> EmailExists(EmailAddress email);
-    Task<int> SaveChanges();
 }
