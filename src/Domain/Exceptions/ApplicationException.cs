@@ -1,11 +1,11 @@
 namespace MyApp.Domain.Exceptions;
 
-public class DomainException : Exception
+public class ApplicationException : Exception
 {
-    public DomainException(string message) : base(message) {}
+    public ApplicationException(string message) : base(message) {}
 }
 
-public class DomainValidationException : DomainException
+public class ApplicationServiceException : ApplicationException
 {
-    public DomainValidationException(string message) : base(message) {}
+    public ApplicationServiceException(string message) : base(message) {}
 }

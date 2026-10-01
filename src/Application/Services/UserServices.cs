@@ -26,7 +26,7 @@ public sealed class UserServices
     public async Task<UserId> CreateUser(CreateUserDTO userDTO)
     {
         if (await _users.EmailExists(EmailAddress.Create(userDTO.Email)))
-            throw new ApplicationException("Email is already registered.");
+            throw new System.ApplicationException("Email is already registered.");
 
         var hash = _hasher.Hash(userDTO.PlainPassword);   
 
