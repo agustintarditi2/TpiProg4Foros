@@ -1,6 +1,6 @@
-namespace MyApp.Application.Users;
+namespace MyApp.Application.Models;
 
-public sealed record RegisterUserCommand(
+public sealed record CreateUserDTO(
     string Name,
     DateOnly DateOfBirth,
     string Email,
