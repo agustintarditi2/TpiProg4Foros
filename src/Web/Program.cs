@@ -1,5 +1,4 @@
 using MyApp.Application;
-using MyApp.Application.Users;
 using MyApp.Infrastructure;
 using MyApp.Infrastructure.Persistence;
 
