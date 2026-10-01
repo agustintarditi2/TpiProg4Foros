@@ -40,5 +40,20 @@ public sealed class UserServices
         await _users.Add(user);
         return user.Id;
     }
+    public async Task<UserDTO> GetById(Guid id)
+    {
+        User? foundUser = await _users.GetById((UserId)id);
+        if (foundUser is null)
+            throw new ApplicationServiceException("Requested user not found");
+        return UserDTO.Create(foundUser);
+    }
+
+    public async Task<List<UserDTO>> Get()
+    {
+        List<User>? userList = await _users.Get();
+        if (userList.Count < 1)
+            throw new ApplicationServiceException("No users found");
+        return UserDTO.CreateList(userList);
+    }
     
 }

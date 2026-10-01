@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using MyApp.Application.Interfaces;
-using MyApp.Application.Users;
+using MyApp.Application.Services;
+using MyApp.Application.Models;
 using MyApp.Domain.Entities;
 using MyApp.Domain.ValueObjects;
 using MyApp.Web.Contracts;
@@ -13,29 +13,34 @@ namespace MyApp.Web.UserController;
 
 public class UserController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly RegisterUserHandler _registerUser;
-    public UserController(IUserRepository userRepository, RegisterUserHandler registerUser)
+    private readonly UserServices _services;
+    public UserController(UserServices services)
     {
-        _registerUser = registerUser;
-        _userRepository = userRepository;
+        _services = services;
     }
 
     [HttpGet]
-    public ActionResult<List<User>> Get()
+    public async Task<ActionResult<List<User>>> Get()
     {
-        var users = _userRepository.Get();
+        var users = await _services.Get();
         return Ok(users);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<User>> GetById([FromRoute] Guid id)
+    {
+        var user = await _services.GetById(id);
+        return Ok(user);
     }
     [HttpPost]
     public async Task<ActionResult<UserId>> RegisterUser(RegisterUserDTO sentUser)
     {
-        var newUser = new RegisterUserCommand(
+        var newUser = new CreateUserDTO(
             sentUser.Name,
             sentUser.DateOfBirth,
             sentUser.Email,
             sentUser.PlainPassword);
-        var registeredUserId = await _registerUser.Handle(newUser);
+        var registeredUserId = await _services.CreateUser(newUser);
         return Ok(registeredUserId);
     }
     
