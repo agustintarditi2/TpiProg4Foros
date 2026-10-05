@@ -57,16 +57,54 @@ public sealed class UserServices
         return UserDTO.CreateList(userList);
     }
 
-    public async Task ChangeEmail(Guid id, string newEmail, CancellationToken ct)
+    public async Task UpdateUser(PatchUserDTO user, CancellationToken ct)
     {
-        if (await _users.EmailExists(EmailAddress.Create(newEmail)))
-            throw new ApplicationServiceException("An account for this email address already exists.");
-        User? originalUser = await _users.GetById((UserId)id, ct);
-        if (originalUser is null)
-            throw new ApplicationServiceException("Requested user not found");
-        originalUser.ChangeEmail(newEmail);
-        _users.Update(originalUser, ct);
-    }
+// Verificamos que haya un ID de usuario en el DTO
+        if (user.Id is null)
+            throw new ApplicationServiceException("ID is required to modify a user.")
+// Verificamos que al menos un campo tenga contenido.
+        if (user.Email is null && user.Name is null && user.DateOfBirth is null && user.PlainPassword is null && user.Role is null)
+            return 
+// De no ser así, devolvemos un hermoso 204 sin contenido, sin molestar a la base de datos ni gastar tiempo de procesamiento.
 
+// Invocamos al usuario original
+        var userId = (UserId)user.Id;
+        User? changedUser = await _users.GetById(userId, ct);
+// Ahora changedUser existe en este namespace y lo podemos modificar para después devolverlo con un único método en el repositorio.
+    if (changedUser is null)
+        throw new ApplicationServiceException("Requested user not found");
+// Si el usuario no existe o no tiene datos guardados, hay error.
+
+// Sigue el use case de cambiar el mail
+        if (user.Email is not null)
+            changedUser = ChangeEmail(user.Email, changedUser);
+// Sigue el use case de cambiar el nombre
+        if (user.Name is not null)
+            changedUser = ChangeName(user.Name, changedUser);
+// Sigue el use case de cambiar la fecha de nacimiento
+        if (user.DateOfBirth is not null)
+            changedUser = ChangeDoB(user.DateOfBirth, changedUser)
+        _users.Update(changedUser, ct);
+    }
+    internal async Task<User> ChangeEmail(string email, User user)
+    {
+        if (await _users.EmailExists(EmailAddress.Create(email)))
+            throw new ApplicationServiceException("An account for this email address already exists.");
+        user.ChangeEmail(newEmail);
+        return user;
+    }
+    internal async Task<User> ChangeName(string name, User user)
+    {
+        user.Rename(name);
+        return user;
+    }
+    internal async Task<User> ChangeEmail(DateOnly dob, User user)
+    {
+        today = DateOnly.FromDateTime(_clock.UtcNow.Date)
+        if (dob > today)
+            throw new ApplicationServiceException("An account for this email address already exists.");
+        user.ChangeEmail(newEmail);
+        return user;
+    }
     
 }
