@@ -86,6 +86,7 @@ public sealed class UserServices
             changedUser = ChangeDoB(user.DateOfBirth, changedUser)
         _users.Update(changedUser, ct);
     }
+// Métodos que se llaman para modificar al usuario que después devuelve UpdateUser()
     internal async Task<User> ChangeEmail(string email, User user)
     {
         if (await _users.EmailExists(EmailAddress.Create(email)))
@@ -98,12 +99,12 @@ public sealed class UserServices
         user.Rename(name);
         return user;
     }
-    internal async Task<User> ChangeEmail(DateOnly dob, User user)
+    internal async Task<User> ChangeDoB(DateOnly dob, User user)
     {
-        today = DateOnly.FromDateTime(_clock.UtcNow.Date)
+        DateOnly today = DateOnly.FromDateTime(_clock.UtcNow.Date)
         if (dob > today)
-            throw new ApplicationServiceException("An account for this email address already exists.");
-        user.ChangeEmail(newEmail);
+            throw new ApplicationServiceException("Date of birth cannot be in the future.");
+        //user.(newEmail);
         return user;
     }
     
