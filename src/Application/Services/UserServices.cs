@@ -162,4 +162,11 @@ public sealed class UserServices
         return user;
     }
     
+    public async Task DeleteUser(Guid id, CancellationToken ct)
+    {
+        User? userToDelete = await _users.GetById((UserId)id, ct);
+        if (userToDelete is null)
+            throw new ApplicationServiceException("Requested user not found");
+        _users.Delete(userToDelete, ct);
+    }
 }

@@ -51,4 +51,11 @@ public class UserController : ControllerBase
         await _services.UpdateUser(userDTO, ct);
         return NoContent();
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        await _services.DeleteUser(id, cancellationToken);
+        return NoContent();
+    }
 }
