@@ -44,4 +44,21 @@ public sealed class User
     {
         Email = EmailAddress.Create(newEmail);
     }
+    public void ChangePassword(string newHash)
+    {
+        Password = PasswordHash.Create(newHash);
+
+    }
+    public void ChangeDateOfBirth(DateOnly newDateOfBirth, DateTimeOffset now)
+    {
+        if (newDateOfBirth.ToDateTime(TimeOnly.MinValue) > now)
+            throw new DomainException("Date of birth cannot be in the future.");
+        if (newDateOfBirth.AddYears(150) < DateOnly.FromDateTime(now.Date))
+            throw new DomainException("Date of birth cannot indicate an age of more than 150 years.");
+        
+        if (DateOfBirth.AddYears(18) < DateOnly.FromDateTime(now.Date))
+            if (newDateOfBirth.AddYears(18) > DateOnly.FromDateTime(now.Date))
+                throw new DomainException("You cannot become a minor again. The user must be at least 18 years old if it ever was 18 years old.");
+        DateOfBirth = newDateOfBirth;
+    }
 }

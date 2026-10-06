@@ -13,37 +13,35 @@ public sealed class UserRepository : IUserRepository
     {
         _context = context;
     }
-    public async Task<List<User>> Get()
+    public async Task<List<User>> Get(CancellationToken ct)
     {
-        var users = _context.Users.ToList();
-        var ct = new CancellationToken(); //DEBUG!! Quitar en implementación!!
-        await SaveChanges(ct);
+        var users = await _context.Users.ToListAsync(ct);
         return users;
     }
-    public async Task<User?> GetById(UserId id)
+    public async Task<User?> GetById(UserId id, CancellationToken ct)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
-        var ct = new CancellationToken(); //DEBUG!! Quitar en implementación!!
-        await SaveChanges(ct);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
         return user;
     }
-    public async Task<User> Add(User entity)
+    public async Task<User?> GetByEmail(EmailAddress email, CancellationToken ct)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+        return user;
+    }
+    public async Task<User> Add(User entity, CancellationToken ct)
     {
         _context.Users.Add(entity);
-        var ct = new CancellationToken(); //DEBUG!! Quitar en implementación!!
         await SaveChanges(ct);
         return entity;
     }
-    public async void Delete(User entity)
+    public async void Delete(User entity, CancellationToken ct)
     {
         _context.Users.Remove(entity);
-        var ct = new CancellationToken(); //DEBUG!! Quitar en implementación!!
         await SaveChanges(ct);
     }
-    public async void Update(User entity)
+    public async void Update(User entity, CancellationToken ct)
     {
         _context.Users.Update(entity);
-        var ct = new CancellationToken(); //DEBUG!! Quitar en implementación!!
         await SaveChanges(ct);
     }
     public async Task<bool> EmailExists(EmailAddress email)
