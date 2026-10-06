@@ -42,13 +42,13 @@ public class UserController : ControllerBase
             sentUser.Email,
             sentUser.PlainPassword);
         var registeredUserId = await _services.CreateUser(newUser, cancellationToken);
-        return Ok(registeredUserId);
+        return CreatedAtAction(nameof(GetById), new { id = registeredUserId },          registeredUserId);
     }
 
     [HttpPatch]
-    public async Task<IActionResult> ChangeEmail([FromBody] Guid id, [FromBody]string newEmail, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateUser(PatchUserDTO userDTO, CancellationToken ct)
     {
-        await _services.ChangeEmail(id, newEmail, cancellationToken);
+        await _services.UpdateUser(userDTO, ct);
         return NoContent();
     }
 }

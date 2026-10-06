@@ -5,5 +5,5 @@ public sealed record PatchUserDTO(
     DateOnly? DateOfBirth,
     string? Email,
     string? PlainPassword,
-    string? Role,
+    int? Role,
     Guid Id);

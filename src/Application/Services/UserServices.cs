@@ -4,7 +4,7 @@ using MyApp.Domain.Entities;
 using MyApp.Application.Interfaces;
 using MyApp.Application.Abstractions;
 using MyApp.Application.Models;
-using System.Diagnostics;
+using MyApp.Domain.Enums;
 
 namespace MyApp.Application.Services;
 
@@ -24,6 +24,10 @@ public sealed class UserServices
         _clock = clock;
     }
 
+
+//=========================================================================
+
+
     public async Task<UserId> CreateUser(CreateUserDTO userDTO, CancellationToken ct)
     {
         if (await _users.EmailExists(EmailAddress.Create(userDTO.Email)))
@@ -41,6 +45,12 @@ public sealed class UserServices
         await _users.Add(user, ct);
         return user.Id;
     }
+
+    
+//=========================================================================
+
+
+
     public async Task<UserDTO> GetById(Guid id, CancellationToken ct)
     {
         User? foundUser = await _users.GetById((UserId)id, ct);
@@ -48,6 +58,11 @@ public sealed class UserServices
             throw new ApplicationServiceException("Requested user not found");
         return UserDTO.Create(foundUser);
     }
+
+    
+//=========================================================================
+
+
 
     public async Task<List<UserDTO>> Get(CancellationToken ct)
     {
@@ -57,54 +72,93 @@ public sealed class UserServices
         return UserDTO.CreateList(userList);
     }
 
+    
+//=========================================================================
+
+
+
     public async Task UpdateUser(PatchUserDTO user, CancellationToken ct)
     {
+
 // Verificamos que haya un ID de usuario en el DTO
-        if (user.Id is null)
-            throw new ApplicationServiceException("ID is required to modify a user.")
+        if (user.Id == Guid.Empty)
+            throw new ApplicationServiceException("ID is required to modify a user.");
+
 // Verificamos que al menos un campo tenga contenido.
         if (user.Email is null && user.Name is null && user.DateOfBirth is null && user.PlainPassword is null && user.Role is null)
-            return 
+            return ;
+
 // De no ser así, devolvemos un hermoso 204 sin contenido, sin molestar a la base de datos ni gastar tiempo de procesamiento.
 
 // Invocamos al usuario original
         var userId = (UserId)user.Id;
         User? changedUser = await _users.GetById(userId, ct);
+
 // Ahora changedUser existe en este namespace y lo podemos modificar para después devolverlo con un único método en el repositorio.
     if (changedUser is null)
         throw new ApplicationServiceException("Requested user not found");
+
 // Si el usuario no existe o no tiene datos guardados, hay error.
 
 // Sigue el use case de cambiar el mail
-        if (user.Email is not null)
-            changedUser = ChangeEmail(user.Email, changedUser);
+        if (user.Email is string email)
+            changedUser = await ChangeEmail(email, changedUser);
+
 // Sigue el use case de cambiar el nombre
-        if (user.Name is not null)
-            changedUser = ChangeName(user.Name, changedUser);
+        if (user.Name is string name)
+            changedUser = await ChangeName(name, changedUser);
+
 // Sigue el use case de cambiar la fecha de nacimiento
-        if (user.DateOfBirth is not null)
-            changedUser = ChangeDoB(user.DateOfBirth, changedUser)
+        if (user.DateOfBirth is DateOnly dob)
+            changedUser = await ChangeDoB(dob, changedUser);
+
+// Sigue el use case de cambiar la contraseña
+        if (user.PlainPassword is string plainPassword)
+            changedUser = await ChangePassword(plainPassword, changedUser);
+// Sigue el use case de cambiar el rol
+        if (user.Role is int role)
+            changedUser = await ChangeRole(role, changedUser);
+// Por último, llamamos al repositorio para que haga el update de changedUser, que ya tiene los cambios aplicados.
         _users.Update(changedUser, ct);
+        return;
     }
+
+
 // Métodos que se llaman para modificar al usuario que después devuelve UpdateUser()
-    internal async Task<User> ChangeEmail(string email, User user)
+
+    private async Task<User> ChangeEmail(string email, User user)
     {
         if (await _users.EmailExists(EmailAddress.Create(email)))
             throw new ApplicationServiceException("An account for this email address already exists.");
-        user.ChangeEmail(newEmail);
+        user.ChangeEmail(email);
         return user;
     }
-    internal async Task<User> ChangeName(string name, User user)
+
+    private async Task<User> ChangeName(string name, User user)
     {
         user.Rename(name);
         return user;
     }
-    internal async Task<User> ChangeDoB(DateOnly dob, User user)
+
+    private async Task<User> ChangeDoB(DateOnly dob, User user)
     {
-        DateOnly today = DateOnly.FromDateTime(_clock.UtcNow.Date)
-        if (dob > today)
-            throw new ApplicationServiceException("Date of birth cannot be in the future.");
-        //user.(newEmail);
+        user.ChangeDateOfBirth(dob, _clock.UtcNow);
+        return user;
+    }
+
+    private async Task<User> ChangePassword(string plainPassword, User user)
+    {
+        string hashedPassword = _hasher.Hash(plainPassword);
+        user.ChangePassword(hashedPassword);
+        return user;
+    }
+
+    private async Task<User> ChangeRole(int role, User user)
+    {
+        //Normalmente validaríamos la autorización del usuario que hace el cambio de rol, pero aún no hemos implementado jwt, así que queda para después.
+        if (!Enum.IsDefined(typeof(UserRole), role))
+            throw new ApplicationServiceException("Invalid role specified.");
+        user.SetRole((UserRole)role);
         return user;
     }
     
