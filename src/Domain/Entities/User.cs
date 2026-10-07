@@ -15,6 +15,7 @@ public sealed class User
     public EmailAddress Email {get; private set;}
     public PasswordHash Password {get; private set;}
     private User() { Name = null!; Email = null!; Password = null!;}
+    // Constructor
     public User(string name, DateOnly dateOfBirth, string email, string hash, DateTimeOffset now)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -28,6 +29,11 @@ public sealed class User
         Password = PasswordHash.Create(hash);
         DateCreated = now;
         Id = UserId.New();
+    }
+    public void ReId(UserId newId)
+    {
+        Id = newId;
+        return;
     }
     public void SetRole(UserRole userRole)
     {

@@ -9,12 +9,14 @@ public sealed class Post
     public DateTimeOffset? DateEdited {get; private set;}
     public UserId Poster {get; private set;}
     public BodyText Body {get; private set;}
+    public ForumId ForumId {get; private set;}
 
     private Post() {Body = null!;}
-    public Post(string body, User poster, DateTimeOffset dateCreated)
+    public Post(string body, User poster, ForumId forum, DateTimeOffset dateCreated)
     {   Body = BodyText.Create(body);
         Id = PostId.New();
         Poster = poster.Id;
+        ForumId = forum;
         DateCreated = dateCreated;
         DateEdited = null;
     }

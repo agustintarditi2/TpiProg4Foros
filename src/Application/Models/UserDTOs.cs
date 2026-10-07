@@ -1,11 +1,13 @@
 // Este DTO es para uso general, no tiene un caso de uso específico
 using MyApp.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyApp.Application.Models;
 
 public record UserDTO(
     string Name,
     DateOnly DateOfBirth,
+    [EmailAddress]
     string Email, //Es seguro exponer el mail del usuario en el DTO?
     string UserRole,
     DateTimeOffset DateCreated,

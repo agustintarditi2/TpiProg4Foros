@@ -30,16 +30,17 @@ public sealed class UserRepository : IUserRepository
     }
     public async Task<User> Add(User entity, CancellationToken ct)
     {
+        Console.WriteLine($"Adding user with id: {entity.Id}");
         _context.Users.Add(entity);
         await SaveChanges(ct);
         return entity;
     }
-    public async void Delete(User entity, CancellationToken ct)
+    public async Task Delete(User entity, CancellationToken ct)
     {
         _context.Users.Remove(entity);
         await SaveChanges(ct);
     }
-    public async void Update(User entity, CancellationToken ct)
+    public async Task Update(User entity, CancellationToken ct)
     {
         _context.Users.Update(entity);
         await SaveChanges(ct);
