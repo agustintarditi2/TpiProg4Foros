@@ -29,3 +29,28 @@ public record UserDTO(
         return entities.Select(entity => Create(entity)).ToList();
     }
 }
+
+// ======================================================================
+
+public sealed record PatchUserDTO(
+    string? Name,
+    DateOnly? DateOfBirth,
+    string? Email,
+    string? PlainPassword,
+    int? Role,
+    Guid Id);
+
+
+
+
+// ======================================================================
+
+
+
+public sealed record CreateUserDTO(
+    string Name,
+    DateOnly DateOfBirth,
+    string Email,
+    string PlainPassword);
+
+    

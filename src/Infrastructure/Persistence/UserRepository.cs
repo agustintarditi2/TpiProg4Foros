@@ -51,8 +51,8 @@ public sealed class UserRepository : IUserRepository
             return false;
         else return true;
     }
-    internal Task<int> SaveChanges(CancellationToken cancellationToken)
+    private async Task<int> SaveChanges(CancellationToken cancellationToken)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 }

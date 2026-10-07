@@ -15,10 +15,27 @@ public readonly record struct PostId(Guid Value)
     public static explicit operator PostId(Guid value) => new(value);
     public bool IsEmpty => Value == Guid.Empty;
 }
+
 public readonly record struct CommentId(Guid Value)
 {
     public static CommentId New() => new(Guid.NewGuid());
     public static implicit operator Guid(CommentId id) => id.Value;
     public static explicit operator CommentId(Guid value) => new(value);
+    public bool IsEmpty => Value == Guid.Empty;    
+}
+
+public readonly record struct ForumId(Guid Value)
+{
+    public static ForumId New() => new(Guid.NewGuid());
+    public static implicit operator Guid(ForumId id) => id.Value;
+    public static explicit operator ForumId(Guid value) => new(value);
+    public bool IsEmpty => Value == Guid.Empty;
+}
+
+public readonly record struct BanId(Guid Value)
+{
+    public static BanId New() => new(Guid.NewGuid());
+    public static implicit operator Guid(BanId id) => id.Value;
+    public static explicit operator BanId(Guid value) => new(value);
     public bool IsEmpty => Value == Guid.Empty;    
 }
