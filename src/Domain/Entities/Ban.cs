@@ -1,40 +1,45 @@
-using System.ComponentModel.DataAnnotations;
 using MyApp.Domain.Enums;
+using MyApp.Domain.ValueObjects;
+using MyApp.Domain.Exceptions;
 
 namespace MyApp.Domain.Entities
 {
-    public class Ban
+    public sealed class Ban
     {
-        public int Id { get; set; }
+        public BanId Id { get; private set; }
 
-        [Required]
-        public int UserId { get; set; }
 
-        [Required]
-        public int AdminId { get; set; }
+        public UserId UserId { get; private set; }
 
-        public DateTime EndDate { get; set; }
+        public UserId AdminId { get; private set; }
+
+        public DateTime EndDate { get; private set; }
         
-        public DateTime StartDate { get; set; }
+        public DateTime StartDate { get; private set; }
 
-        [Required]
-        public int Duration { get; set; }
+        public int Duration { get; private set; }
 
-        [Required]
-        public string Reason { get; set; }
+        public string Reason { get; private set; }
 
-        public BanStatus Status { get; set; } = BanStatus.Activo;
+        public BanStatus Status { get; private set; } = BanStatus.Activo;
 
+        private Ban() { Reason = null!; }
 
-        public Ban(int User, int Admin, int Days, string why)
-        {
-            UserId = User;
-            AdminId = Admin;
-            Duration = Days;
-            StartDate = DateTime.Today;
-            EndDate = StartDate.AddDays(Days);
-            Reason = why;
-        }
+        public Ban(User user, User admin, int days, string reason)
+  {
+        if (days <= 0)
+            throw new DomainException("Ban duration must be positive.");
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new DomainException("Reason is required.");
+
+        Id = BanId.New();
+        UserId = user.Id;
+        AdminId = admin.Id;
+        Duration = days;
+        StartDate = DateTime.Today;
+        EndDate = StartDate.AddDays(days);
+        Reason = reason.Trim();
+    }
 
         public void ModifyBan(int newDays, string newWhy)
         {
@@ -56,7 +61,7 @@ namespace MyApp.Domain.Entities
                 }
             }
 
-            this.Reason = newWhy;
+            this.Reason = newWhy.Trim();
         }
 
         public void Desban()

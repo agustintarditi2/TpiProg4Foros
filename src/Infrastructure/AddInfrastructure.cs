@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();
+        services.AddScoped<IBanRepository, BanRepository>();
 
         return services;
     }

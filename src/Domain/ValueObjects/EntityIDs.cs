@@ -22,3 +22,11 @@ public readonly record struct CommentId(Guid Value)
     public static explicit operator CommentId(Guid value) => new(value);
     public bool IsEmpty => Value == Guid.Empty;    
 }
+
+public readonly record struct BanId(Guid Value)
+{
+    public static BanId New() => new(Guid.NewGuid());
+    public static implicit operator Guid(BanId id) => id.Value;
+    public static explicit operator BanId(Guid value) => new(value);
+    public bool IsEmpty => Value == Guid.Empty;
+}
