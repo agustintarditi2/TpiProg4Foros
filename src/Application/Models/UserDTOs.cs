@@ -55,4 +55,10 @@ public sealed record CreateUserDTO(
     string Email,
     string PlainPassword);
 
-    
+
+
+// ======================================================================
+
+public sealed record LoginUserDTO(
+    string Email,
+    string PlainPassword);

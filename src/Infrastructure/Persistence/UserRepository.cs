@@ -30,7 +30,6 @@ public sealed class UserRepository : IUserRepository
     }
     public async Task<User> Add(User entity, CancellationToken ct)
     {
-        Console.WriteLine($"Adding user with id: {entity.Id}");
         _context.Users.Add(entity);
         await SaveChanges(ct);
         return entity;

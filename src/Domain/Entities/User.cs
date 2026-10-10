@@ -14,6 +14,7 @@ public sealed class User
     public DateTimeOffset DateCreated {get; private set;}
     public EmailAddress Email {get; private set;}
     public PasswordHash Password {get; private set;}
+    public List<Reaction>? Reactions {get; private set;}
     private User() { Name = null!; Email = null!; Password = null!;}
     // Constructor
     public User(string name, DateOnly dateOfBirth, string email, string hash, DateTimeOffset now)
@@ -28,6 +29,7 @@ public sealed class User
         Email = EmailAddress.Create(email);
         Password = PasswordHash.Create(hash);
         DateCreated = now;
+        Reactions = new List<Reaction>();
         Id = UserId.New();
     }
     public void ReId(UserId newId)

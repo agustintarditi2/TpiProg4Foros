@@ -3,9 +3,8 @@ using MyApp.Application.Services;
 using MyApp.Application.Models;
 using MyApp.Domain.Entities;
 using MyApp.Domain.ValueObjects;
-using MyApp.Web.Contracts;
 
-namespace MyApp.Web.UserController;
+namespace MyApp.Web.Controllers;
 
 [ApiController]
 
@@ -34,14 +33,9 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserId>> RegisterUser(RegisterUserDTO sentUser, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserId>> RegisterUser(CreateUserDTO sentUser, CancellationToken cancellationToken)
     {
-        var newUser = new CreateUserDTO(
-            sentUser.Name,
-            sentUser.DateOfBirth,
-            sentUser.Email,
-            sentUser.PlainPassword);
-        var registeredUserId = await _services.CreateUser(newUser, cancellationToken);
+        var registeredUserId = await _services.CreateUser(sentUser, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = registeredUserId },          registeredUserId);
     }
 

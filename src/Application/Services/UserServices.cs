@@ -167,6 +167,6 @@ public sealed class UserServices
         User? userToDelete = await _users.GetById((UserId)id, ct);
         if (userToDelete is null)
             throw new ApplicationServiceException("Requested user not found");
-        _users.Delete(userToDelete, ct);
+        await _users.Delete(userToDelete, ct);
     }
 }
