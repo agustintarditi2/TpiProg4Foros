@@ -1,13 +1,19 @@
 using System;
 using System.Text.RegularExpressions;
+using MyApp.Application.Interfaces;
 
 namespace MyApp.Application.Services;
 
 public class TextServices
 {
-    
 
-public static string Parse(string text)
+private readonly ISanitizer _sanitizer;
+
+public TextServices(ISanitizer sanitizer){
+    _sanitizer = sanitizer;
+}
+
+public string Parse(string text)
 {
     if (string.IsNullOrEmpty(text))
         return "<p></p>";
@@ -24,7 +30,15 @@ public static string Parse(string text)
     // Cursiva: *texto* or _texto_
     text = Regex.Replace(text, @"(\*|_)([^\*_]+)\1", "<i>$2</i>");
     
-    return $"<p>{text}</p>";
+    return _sanitizer.Sanitize($"<p>{text}</p>");
+}
+
+public string ToMarkdown(string text)
+{
+    if (string.IsNullOrEmpty(text)) 
+        return "";
+    
+
 }
 
 }
