@@ -27,8 +27,6 @@ public class PostController : ControllerBase
         return Ok(await _services.GetByForum(forumId, ct));
     }
 
-    [HttpGet]
-
     public async Task<ActionResult<List<PostDTO>>> GetByPoster([FromQuery] UserId userId, CancellationToken ct)
     {
         return Ok(await _services.GetByPoster(userId, ct));
@@ -57,9 +55,16 @@ public class PostController : ControllerBase
         await _services.Update(id, newBody, ct);
         return NoContent();
     }
-    public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, CancellationToken ct)
+
+    public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
-        await _services.HideOrUnhide((PostId) id, ct);
+        await _services.HideOrUnhide((PostId) id, hidden, ct);
+        return NoContent();
+    }
+
+    public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
+    {
+        await _services.Delete(id, ct);
         return NoContent();
     }
 }

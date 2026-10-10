@@ -27,9 +27,9 @@ public sealed class Post : TextEntity
         Edited = true;
     }
 
-    public void HideOrUnhide()
+    public void HideOrUnhide(bool hidden)
     {
-        Hidden = !Hidden;
+        Hidden = hidden;
     }
 
 }

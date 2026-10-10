@@ -53,11 +53,11 @@ public sealed class PostServices{
         await _repository.Update(entity, ct);
     }
 
-    public async Task HideOrUnhide(PostId id, CancellationToken ct) 
+    public async Task HideOrUnhide(PostId id, bool value, CancellationToken ct) 
     {
         var entity = await _repository.GetById(id, ct);
         if (entity is null) throw new Exception("Requested post not found");
-        entity.HideOrUnhide();
+        entity.HideOrUnhide(value);
         await _repository.Update(entity, ct);
     }
 
