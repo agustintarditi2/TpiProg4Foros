@@ -16,4 +16,10 @@ public class Forum
         Description = description;
         State = true;
     }
+
+    public void Update(string title, string description)
+    {
+        Title = title;
+        Description = description;
+    }
 }
