@@ -21,16 +21,28 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .HasConversion(id => id.Value, v => new UserId(v))
             .IsRequired();
 
+        builder.Property(p => p.ForumId)
+            .HasConversion(id => id.Value, v => new ForumId(v))
+            .IsRequired();
+
         builder.Property(p => p.Body)
             .HasConversion(b => b.Value, v => BodyText.FromPersistence(v))
             .IsRequired();
 
         builder.Property(p => p.DateCreated).IsRequired();
         builder.Property(p => p.DateEdited);
+        builder.Property(p => p.Edited).IsRequired();
+        builder.Property(p => p.Hidden).IsRequired();
 
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(p => p.Poster)
             .OnDelete(DeleteBehavior.Restrict);
+
+        //Dejo este comentado porque no tengo la data de Forum.
+        //builder.HasOne<Forum>()
+             //.WithMany()
+             //.HasForeignKey(p => p.ForumId)
+             //.OnDelete(DeleteBehavior.Restrict);
     }
 }

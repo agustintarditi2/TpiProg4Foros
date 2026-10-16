@@ -36,7 +36,7 @@ public sealed class PostServices{
         return entities.Select(PostDTO.Create).ToList() ?? throw new ApplicationServiceException("No posts found for user.");
     }
 
-    public async Task<PostDTO> Create(PostDTO dto, CancellationToken ct) 
+    public async Task<PostDTO> Create(CreatePostDTO dto, CancellationToken ct) 
     {
         var entity = new Post(
             _sanitizer.Sanitize(dto.Body),

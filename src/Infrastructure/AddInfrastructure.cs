@@ -20,6 +20,7 @@ public static class DependencyInjection
             options.UseSqlite(configuration.GetConnectionString("Default")));
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IPostRepository, PostRepository>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<ISanitizer, SanitizationService>();
