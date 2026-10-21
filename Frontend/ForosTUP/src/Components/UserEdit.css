@@ -1,0 +1,20 @@
+.user-edit-card {
+    background-color: #064420;
+    border: none;
+}
+
+.user-edit-error {
+    color: #dc3545 !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.user-edit-card .form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.user-edit-card .form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(185, 28, 28, 0.25);
+}

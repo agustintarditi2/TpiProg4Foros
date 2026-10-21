@@ -1,0 +1,107 @@
+.forums-page {
+  min-height: 100vh;
+  padding: 4rem 0 5rem;
+  background:
+    radial-gradient(circle at 8% 82%, rgba(6, 68, 32, 0.06) 0, transparent 190px),
+    radial-gradient(circle at 96% 55%, rgba(6, 68, 32, 0.07) 0, transparent 160px),
+    linear-gradient(180deg, #f8fcf9 0%, #edf6f1 100%);
+}
+
+.forums-page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.forums-page-title {
+  color: #064420;
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 0.9rem;
+}
+
+.forums-page-description {
+  color: #064420;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 760px;
+  margin: 0 auto 1.8rem;
+  background: #dff2e7;
+  border: 1px solid #c7e4d2;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(6, 68, 32, 0.08);
+}
+
+.forums-page-search-wrapper {
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.forums-page-search {
+  height: 50px;
+  border-radius: 10px;
+  border: 1px solid #d8e6dc;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0 1rem;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 16px rgba(6, 68, 32, 0.06);
+}
+
+.forums-page-search:focus {
+  border-color: #8eb59a;
+  box-shadow: 0 0 0 0.2rem rgba(6, 68, 32, 0.08);
+}
+
+.forums-page-loading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #064420;
+  padding: 2rem 0;
+}
+
+.forums-page-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.7rem 2rem;
+}
+
+.forums-page-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #5e6e65;
+}
+
+@media (max-width: 991px) {
+  .forums-page {
+    padding: 3rem 0 4rem;
+  }
+
+  .forums-page-title {
+    font-size: 2.3rem;
+  }
+
+  .forums-page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.forums-page-create-button {
+  margin-top: 1.2rem;
+  background: #064420;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.3rem;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(6, 68, 32, 0.18);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.forums-page-create-button:hover {
+  background: #0f5132;
+  transform: translateY(-2px);
+}

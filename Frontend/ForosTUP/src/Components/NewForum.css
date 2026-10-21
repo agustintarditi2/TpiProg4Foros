@@ -1,0 +1,98 @@
+.new-forum-page {
+  min-height: 100vh;
+  padding: 4rem 0;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(6, 68, 32, 0.06) 0, transparent 180px),
+    radial-gradient(circle at 90% 80%, rgba(6, 68, 32, 0.06) 0, transparent 220px),
+    linear-gradient(180deg, #f8fcf9 0%, #edf6f1 100%);
+}
+
+.new-forum-card {
+  max-width: 760px;
+  margin: 0 auto;
+  border: 1px solid #d7eadc;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(6, 68, 32, 0.1);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.new-forum-card .card-body {
+  padding: 2.2rem;
+}
+
+.new-forum-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.new-forum-badge {
+  display: inline-block;
+  background: #dff2e7;
+  color: #064420;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.new-forum-header h1 {
+  color: #064420;
+  font-size: 2.4rem;
+  font-weight: 900;
+  margin-bottom: 0.6rem;
+}
+
+.new-forum-header p {
+  color: #59675f;
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.new-forum-card label {
+  color: #064420;
+  font-weight: 800;
+}
+
+.new-forum-card .form-control {
+  border-radius: 10px;
+  border: 1px solid #d8e6dc;
+  padding: 0.75rem 1rem;
+}
+
+.new-forum-card .form-control:focus {
+  border-color: #8eb59a;
+  box-shadow: 0 0 0 0.2rem rgba(6, 68, 32, 0.08);
+}
+
+.new-forum-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.new-forum-submit {
+  background: #064420;
+  border-color: #064420;
+  font-weight: 800;
+}
+
+.new-forum-submit:hover {
+  background: #0f5132;
+  border-color: #0f5132;
+}
+
+@media (max-width: 576px) {
+  .new-forum-card .card-body {
+    padding: 1.4rem;
+  }
+
+  .new-forum-actions {
+    flex-direction: column;
+  }
+
+  .new-forum-actions button {
+    width: 100%;
+  }
+}
