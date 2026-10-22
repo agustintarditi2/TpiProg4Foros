@@ -1,6 +1,7 @@
 using MyApp.Application;
 using MyApp.Infrastructure;
 using MyApp.Infrastructure.Persistence;
+using MyApp.Web.Middlewares.ErrorHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,11 @@ builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
+
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

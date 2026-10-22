@@ -27,11 +27,11 @@ public sealed class BanServices
     {
         User? targetUser = await _users.GetById((UserId)banDTO.UserId, ct);
         if (targetUser is null)
-            throw new ApplicationServiceException("User to ban not found.");
+            throw new NotFoundException("User to ban not found.");
 
         User? admin = await _users.GetById((UserId)banDTO.AdminId, ct);
         if (admin is null)
-            throw new ApplicationServiceException("Admin not found.");
+            throw new NotFoundException("Admin not found.");
 
         var ban = new Ban(targetUser, admin, banDTO.Days, banDTO.Reason);
 
@@ -47,7 +47,7 @@ public sealed class BanServices
     {
         Ban? foundBan = await _bans.GetById((BanId)id, ct);
         if (foundBan is null)
-            throw new ApplicationServiceException("Requested ban not found");
+            throw new NotFoundException("Requested ban not found");
         return BanDTO.Create(foundBan);
     }
 
@@ -59,7 +59,7 @@ public sealed class BanServices
     {
         List<Ban>? banList = await _bans.Get(ct);
         if (banList.Count < 1)
-            throw new ApplicationServiceException("No bans found");
+            throw new NotFoundException("No bans found");
         return BanDTO.CreateList(banList);
     }
 
@@ -70,11 +70,11 @@ public sealed class BanServices
     public async Task ModifyBan(ModifyBanDTO banDTO, CancellationToken ct)
     {
         if (banDTO.Id == Guid.Empty)
-            throw new ApplicationServiceException("ID is required to modify a ban.");
+            throw new DomainException("ID is required to modify a ban.");
 
         Ban? ban = await _bans.GetById((BanId)banDTO.Id, ct);
         if (ban is null)
-            throw new ApplicationServiceException("Requested ban not found");
+            throw new NotFoundException("Requested ban not found");
 
         ban.ModifyBan(banDTO.NewDays, banDTO.NewReason);
 
@@ -89,7 +89,7 @@ public sealed class BanServices
     {
         Ban? ban = await _bans.GetById((BanId)id, ct);
         if (ban is null)
-            throw new ApplicationServiceException("Requested ban not found");
+            throw new NotFoundException("Requested ban not found");
 
         ban.Desban();
 
@@ -104,7 +104,7 @@ public sealed class BanServices
     {
         Ban? banToDelete = await _bans.GetById((BanId)id, ct);
         if (banToDelete is null)
-            throw new ApplicationServiceException("Requested ban not found");
+            throw new NotFoundException("Requested ban not found");
         _bans.Delete(banToDelete, ct);
     }
 }
