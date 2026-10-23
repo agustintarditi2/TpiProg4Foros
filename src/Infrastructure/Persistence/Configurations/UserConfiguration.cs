@@ -37,5 +37,8 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.Password)
             .HasConversion(p => p.Value, v => PasswordHash.Create(v));
+
+        // ignora las reacciones porque todavia no estan configuradas para persistencia
+        builder.Ignore(u => u.Reactions);
     }
 }

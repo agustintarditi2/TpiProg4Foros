@@ -119,7 +119,7 @@ public sealed class UserServices
         if (user.Role is int role)
             changedUser = await ChangeRole(role, changedUser);
 // Por último, llamamos al repositorio para que haga el update de changedUser, que ya tiene los cambios aplicados.
-        _users.Update(changedUser, ct);
+        await _users.Update(changedUser, ct);
         return;
     }
 

@@ -32,5 +32,14 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .WithMany()
             .HasForeignKey(p => p.Poster)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Property(p => p.ForumId)
+            .HasConversion(id => id.Value, v => new ForumId(v))
+            .IsRequired();
+
+        builder.HasOne<Forum>()
+            .WithMany()
+            .HasForeignKey(p => p.ForumId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

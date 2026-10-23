@@ -68,8 +68,14 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset>("DateCreated")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("DateEdited")
+                    b.Property<DateTimeOffset?>("DateEdited")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Edited")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("ParentPost")
                         .HasColumnType("TEXT");
@@ -89,6 +95,27 @@ namespace Infrastructure.Migrations
                     b.ToTable("Comments", (string)null);
                 });
 
+            modelBuilder.Entity("MyApp.Domain.Entities.Forum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("State")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Forums", (string)null);
+                });
+
             modelBuilder.Entity("MyApp.Domain.Entities.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -104,10 +131,21 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DateEdited")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Edited")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("Poster")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ForumId");
 
                     b.HasIndex("Poster");
 
@@ -183,6 +221,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("MyApp.Domain.Entities.Post", b =>
                 {
+                    b.HasOne("MyApp.Domain.Entities.Forum", null)
+                        .WithMany()
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("MyApp.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("Poster")

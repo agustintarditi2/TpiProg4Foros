@@ -8,6 +8,7 @@ using MyApp.Application.Interfaces;
 using MyApp.Infrastructure.Persistence;
 using MyApp.Infrastructure.Persistence.Repositories;
 using MyApp.Infrastructure.Security;
+using MyApp.Infrastructure.Services;
 
 public static class DependencyInjection
 {
@@ -19,9 +20,12 @@ public static class DependencyInjection
             options.UseSqlite(configuration.GetConnectionString("Default")));
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IForumRepository, ForumRepository>();
+        
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<IBanRepository, BanRepository>();
+        services.AddScoped<ISanitizer, SanitizationService>();
 
         return services;
     }

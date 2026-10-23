@@ -34,12 +34,12 @@ public sealed class UserRepository : IUserRepository
         await SaveChanges(ct);
         return entity;
     }
-    public async void Delete(User entity, CancellationToken ct)
+    public async Task Delete(User entity, CancellationToken ct)
     {
         _context.Users.Remove(entity);
         await SaveChanges(ct);
     }
-    public async void Update(User entity, CancellationToken ct)
+    public async Task Update(User entity, CancellationToken ct)
     {
         _context.Users.Update(entity);
         await SaveChanges(ct);
@@ -51,8 +51,8 @@ public sealed class UserRepository : IUserRepository
             return false;
         else return true;
     }
-    internal Task<int> SaveChanges(CancellationToken cancellationToken)
+    private async Task<int> SaveChanges(CancellationToken cancellationToken)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 }
