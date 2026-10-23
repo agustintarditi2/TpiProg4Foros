@@ -31,7 +31,7 @@ public sealed class UserServices
     public async Task<UserId> CreateUser(CreateUserDTO userDTO, CancellationToken ct)
     {
         if (await _users.EmailExists(EmailAddress.Create(userDTO.Email)))
-            throw new System.ApplicationException("Email is already registered.");
+            throw new DomainException("Email is already registered.");
 
         var hash = _hasher.Hash(userDTO.PlainPassword);   
 
@@ -55,7 +55,7 @@ public sealed class UserServices
     {
         User? foundUser = await _users.GetById((UserId)id, ct);
         if (foundUser is null)
-            throw new ApplicationServiceException("Requested user not found");
+            throw new NotFoundException("Requested user not found");
         return UserDTO.Create(foundUser);
     }
 
@@ -68,7 +68,7 @@ public sealed class UserServices
     {
         List<User>? userList = await _users.Get(ct);
         if (userList.Count < 1)
-            throw new ApplicationServiceException("No users found");
+            throw new NotFoundException("No users found");
         return UserDTO.CreateList(userList);
     }
 
@@ -82,7 +82,7 @@ public sealed class UserServices
 
 // Verificamos que haya un ID de usuario en el DTO
         if (user.Id == Guid.Empty)
-            throw new ApplicationServiceException("ID is required to modify a user.");
+            throw new DomainException("ID is required to modify a user.");
 
 // Verificamos que al menos un campo tenga contenido.
         if (user.Email is null && user.Name is null && user.DateOfBirth is null && user.PlainPassword is null && user.Role is null)
@@ -96,7 +96,7 @@ public sealed class UserServices
 
 // Ahora changedUser existe en este namespace y lo podemos modificar para después devolverlo con un único método en el repositorio.
     if (changedUser is null)
-        throw new ApplicationServiceException("Requested user not found");
+        throw new NotFoundException("Requested user not found");
 
 // Si el usuario no existe o no tiene datos guardados, hay error.
 
@@ -129,7 +129,7 @@ public sealed class UserServices
     private async Task<User> ChangeEmail(string email, User user)
     {
         if (await _users.EmailExists(EmailAddress.Create(email)))
-            throw new ApplicationServiceException("An account for this email address already exists.");
+            throw new DomainException("An account for this email address already exists.");
         user.ChangeEmail(email);
         return user;
     }
@@ -157,7 +157,7 @@ public sealed class UserServices
     {
         //Normalmente validaríamos la autorización del usuario que hace el cambio de rol, pero aún no hemos implementado jwt, así que queda para después.
         if (!Enum.IsDefined(typeof(UserRole), role))
-            throw new ApplicationServiceException("Invalid role specified.");
+            throw new DomainException("Invalid role specified.");
         user.SetRole((UserRole)role);
         return user;
     }
@@ -166,7 +166,7 @@ public sealed class UserServices
     {
         User? userToDelete = await _users.GetById((UserId)id, ct);
         if (userToDelete is null)
-            throw new ApplicationServiceException("Requested user not found");
-        await _users.Delete(userToDelete, ct);
+            throw new NotFoundException("Requested user not found");
+        _users.Delete(userToDelete, ct);
     }
 }
