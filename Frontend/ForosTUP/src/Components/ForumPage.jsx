@@ -123,7 +123,7 @@ const ForumPage = () => {
     if (editedName !== "") newForum.name = editedName || "";
     if (editedRules !== "") newForum.rules = editedRules || "";
     if (editedDesc !== "") newForum.desc = editedDesc || ""
-    const res = await fetch(`http://localhost:3000/forums/${forumId}`, {
+    const res = await fetch(`http://localhost:5073/forums/${forumId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

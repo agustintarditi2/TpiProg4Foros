@@ -1,16 +1,24 @@
 import "./LogIn.css";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+} from "react-bootstrap";
 
 const Register = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     nick: "",
-    nombre: "",
-    correo: "",
-    edad: "",
+    name: "",
+    email: "",
+    birthdate: "",
     password: "",
     confirmPassword: "",
   });
@@ -31,25 +39,40 @@ const Register = () => {
 
     setError("");
     setSuccess("");
-    setLoading(true);
 
     if (form.password !== form.confirmPassword) {
       setError("Las contraseñas no coinciden");
-      setLoading(false);
       return;
     }
 
+    if (!form.birthdate) {
+      setError("Ingresá tu fecha de nacimiento");
+      return;
+    }
+
+    const hoy = new Date();
+    const birthdate = new Date(
+      `${form.birthdate}T00:00:00`
+    );
+
+    if (birthdate > hoy) {
+      setError("La fecha de nacimiento no puede ser futura");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const response = await fetch("http://localhost:3000/register", {
+      const response = await fetch("http://localhost:5073/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           nick: form.nick,
-          nombre: form.nombre,
-          correo: form.correo,
-          edad: Number(form.edad),
+          name: form.name,
+          email: form.email,
+          birthdate: form.birthdate,
           password: form.password,
         }),
       });
@@ -65,12 +88,11 @@ const Register = () => {
       setTimeout(() => {
         navigate("/login");
       }, 1500);
-
     } catch (error) {
       setError(error.message);
     } finally {
-    setLoading(false);
-  }
+      setLoading(false);
+    }
   };
 
   return (
@@ -104,7 +126,9 @@ const Register = () => {
 
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="login-label">Nick</Form.Label>
+                    <Form.Label className="login-label">
+                      Nick
+                    </Form.Label>
                     <Form.Control
                       className="login-input"
                       type="text"
@@ -118,12 +142,14 @@ const Register = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="login-label">Nombre</Form.Label>
+                    <Form.Label className="login-label">
+                      Nombre
+                    </Form.Label>
                     <Form.Control
                       className="login-input"
                       type="text"
-                      name="nombre"
-                      value={form.nombre}
+                      name="name"
+                      value={form.name}
                       onChange={handleChange}
                       placeholder="Ingresá tu nombre"
                       autoComplete="name"
@@ -132,12 +158,14 @@ const Register = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="login-label">Correo electrónico</Form.Label>
+                    <Form.Label className="login-label">
+                      Correo electrónico
+                    </Form.Label>
                     <Form.Control
                       className="login-input"
                       type="email"
-                      name="correo"
-                      value={form.correo}
+                      name="email"
+                      value={form.email}
                       onChange={handleChange}
                       placeholder="ejemplo@mail.com"
                       autoComplete="email"
@@ -146,21 +174,25 @@ const Register = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="login-label">Edad</Form.Label>
+                    <Form.Label className="login-label">
+                      Fecha de nacimiento
+                    </Form.Label>
                     <Form.Control
                       className="login-input"
-                      type="number"
-                      name="edad"
-                      min="13"
-                      value={form.edad}
+                      type="date"
+                      name="birthdate"
+                      value={form.birthdate}
                       onChange={handleChange}
-                      placeholder="13+"
+                      max={new Date().toLocaleDateString("en-CA")}
+                      autoComplete="bday"
                       required
                     />
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="login-label">Contraseña</Form.Label>
+                    <Form.Label className="login-label">
+                      Contraseña
+                    </Form.Label>
                     <Form.Control
                       className="login-input"
                       type="password"
@@ -174,7 +206,9 @@ const Register = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-4">
-                    <Form.Label className="login-label">Confirmar contraseña</Form.Label>
+                    <Form.Label className="login-label">
+                      Confirmar contraseña
+                    </Form.Label>
                     <Form.Control
                       className="login-input"
                       type="password"

@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 	// el verify, que es un fetch sencillo. No se exporta porque solo se uza adentro del contexto.
   const verifyTokenWithBackend = async (token) => {
-    const res = await fetch("http://localhost:3000/token", {
+    const res = await fetch("http://localhost:5073/token", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

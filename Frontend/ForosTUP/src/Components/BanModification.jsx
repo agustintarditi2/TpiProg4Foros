@@ -40,7 +40,7 @@ const EditBan = ({ ban, onClose, onUpdated }) => {
             setError("");
             setSuccess("");
 
-            const response = await fetch(`http://localhost:3000/bans/${ban.id}`, {
+            const response = await fetch(`http://localhost:5073/bans/${ban.id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -108,7 +108,7 @@ const EditBan = ({ ban, onClose, onUpdated }) => {
                                 onChange={handleChange}
                                 required
                                 min="1"
-                            />): (<span className="text-muted" className="me-2"> Ban inactivo</span>)}
+                            />): (<span className="text-muted me-2"> Ban inactivo</span>)}
                         </FormGroup>
                         <Row>
                             <Col md={6}>

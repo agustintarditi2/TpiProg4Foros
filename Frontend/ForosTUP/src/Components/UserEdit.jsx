@@ -51,7 +51,7 @@ const UserEdit = () => {
                 setLoading(true);
 
                 const response = await fetch(
-                    "http://localhost:3000/persons/me",
+                    "http://localhost:5073/persons/me",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -193,7 +193,7 @@ const UserEdit = () => {
             }
 
             const response = await fetch(
-                "http://localhost:3000/persons/me",
+                "http://localhost:5073/persons/me",
                 {
                     method: "PATCH",
                     headers: {

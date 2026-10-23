@@ -20,7 +20,7 @@ const Bans = () => {
     try {
       setError("");
 
-      const response = await fetch("http://localhost:3000/bans", {
+      const response = await fetch("http://localhost:5073/bans", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -67,7 +67,7 @@ const Bans = () => {
         newDuration = 0;
       }
 
-      const respuesta = await fetch(`http://localhost:3000/bans/${ban.id}`, {
+      const respuesta = await fetch(`http://localhost:5073/bans/${ban.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -214,7 +214,7 @@ const Bans = () => {
                       {banLoadingId === item.id ? "Desbaneando..." : "Desbanear"}
                     </Button>
                   ) : (
-                    <span className="text-muted" className="me-2">Ban inactivo</span>
+                    <span className="text-muted me-2">Ban inactivo</span>
                   )}
                 </td>
               </tr>

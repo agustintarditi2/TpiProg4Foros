@@ -20,7 +20,7 @@ import { useState } from "react";
 const NavBar = () => {
   const navigate = useNavigate();
 
-  const API_URL = "http://localhost:3000";
+  const API_URL = "http://localhost:5073";
 
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);

@@ -56,7 +56,7 @@ const ForumDisplay = ({ forum }) => {
       setDeleteForumLoading(true);
       setDeleteForumError("");
 
-      const response = await fetch(`http://localhost:3000/forums/${id}`, {
+      const response = await fetch(`http://localhost:5073/forums/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

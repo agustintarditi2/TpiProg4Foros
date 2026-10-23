@@ -10,7 +10,7 @@ export const useFetchFromAPI = (apiRoute, initialValue = []) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3000${apiRoute}`);
+      const response = await fetch(`http://localhost:5073${apiRoute}`);
       if (!response.ok) {
         throw new Error("No se pudo recuperar la información");
       }
