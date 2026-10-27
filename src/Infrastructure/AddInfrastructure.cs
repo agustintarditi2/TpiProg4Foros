@@ -21,6 +21,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IForumRepository, ForumRepository>();
+        services.AddScoped<IPostRepository, PostRepository>();
         
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();

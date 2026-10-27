@@ -13,7 +13,7 @@ namespace MyApp.Web.Controllers;
 public class PostController : ControllerBase
 {
 
-    private readonly PostServices _services; 
+    private readonly PostServices _services;
 
     public PostController(PostServices postServices)
     {
@@ -22,12 +22,13 @@ public class PostController : ControllerBase
 
     [HttpGet]
 
-    public async Task<ActionResult<List<PostDTO>>> GetByForum([FromQuery] ForumId forumId, CancellationToken ct)
+    public async Task<ActionResult<List<PostDTO>>> GetByForum([FromQuery] Guid forumId, CancellationToken ct)
     {
         return Ok(await _services.GetByForum(forumId, ct));
     }
 
-    public async Task<ActionResult<List<PostDTO>>> GetByPoster([FromQuery] UserId userId, CancellationToken ct)
+    [HttpGet("by-poster")]
+    public async Task<ActionResult<List<PostDTO>>> GetByPoster([FromQuery] Guid userId, CancellationToken ct)
     {
         return Ok(await _services.GetByPoster(userId, ct));
     }
@@ -35,7 +36,7 @@ public class PostController : ControllerBase
 
     [HttpGet("{id}")]
 
-    public async Task<ActionResult<PostDTO>> GetById([FromRoute] PostId id, CancellationToken ct)
+    public async Task<ActionResult<PostDTO>> GetById([FromRoute] Guid id, CancellationToken ct)
     {
         return Ok(await _services.GetById(id, ct));
     }
@@ -44,11 +45,16 @@ public class PostController : ControllerBase
 
     public async Task<ActionResult<PostDTO>> NewPost([FromBody] PostDTO post, CancellationToken ct)
     {
-        PostDTO newPost = await _services.Create(post, ct);
-        return CreatedAtAction(nameof(NewPost), newPost);
-    }
-    
-    [HttpPatch("{id}")]
+    var newPost = await _services.Create(post, ct);
+
+    return CreatedAtAction(
+        nameof(GetById),
+        new { id = newPost.id },
+        newPost
+    );
+}
+
+    [HttpPatch("{id:guid}")]
 
     public async Task<ActionResult> EditPost([FromRoute] Guid id, [FromBody] string newBody, CancellationToken ct)
     {
@@ -56,15 +62,17 @@ public class PostController : ControllerBase
         return NoContent();
     }
 
+    [HttpPatch("{id:guid}/visibility")]
+
     public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
-        await _services.HideOrUnhide((PostId) id, hidden, ct);
+        await _services.HideOrUnhide(id, hidden, ct);
         return NoContent();
     }
-
+    [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
     {
-        await _services.Delete((PostId)id, ct);
+        await _services.Delete(id, ct);
         return NoContent();
     }
 }
