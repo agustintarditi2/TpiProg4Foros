@@ -1,4 +1,5 @@
 using MyApp.Domain.ValueObjects;
+using MyApp.Domain.Exceptions;
 
 namespace MyApp.Domain.Entities;
 
@@ -10,7 +11,11 @@ public sealed class Post : TextEntity
 
     private Post() {Body = null!;}
     public Post(string body, UserId poster, ForumId forum, DateTimeOffset dateCreated)
-    {   Body = BodyText.Create(body);
+    {
+        if (forum.IsEmpty)
+            throw new DomainException("A post must belong to a forum.");
+
+        Body = BodyText.Create(body);
         Id = PostId.New();
         Poster = poster;
         ForumId = forum;
@@ -19,7 +24,7 @@ public sealed class Post : TextEntity
         Edited = false;
         Hidden = false;
     }
-    
+
     public void EditBody(string newBody, DateTimeOffset dateEdited)
     {
         Body = BodyText.Create(newBody);

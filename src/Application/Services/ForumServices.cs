@@ -2,6 +2,7 @@ using MyApp.Application.Interfaces;
 using MyApp.Application.Models;
 using MyApp.Domain.Entities;
 using MyApp.Domain.ValueObjects;
+using MyApp.Domain.Exceptions;
 
 namespace MyApp.Application.Services;
 
@@ -30,11 +31,8 @@ public sealed class ForumServices
     {
         var forum = await _repository.GetById((ForumId)id, ct);
 
-        // si el foro no existe devuelve null
         if (forum is null)
-        {
-            return null;
-        }
+            throw new NotFoundException("Requested forum not found");
 
         return ForumDTO.Create(forum);
     }
@@ -61,12 +59,8 @@ public sealed class ForumServices
         CancellationToken ct)
     {
         var forum = await _repository.GetById((ForumId)id, ct);
-
-        // si el foro no existe devuelve null
         if (forum is null)
-        {
-            return null;
-        }
+            throw new NotFoundException("Requested forum not found");
 
         forum.Update(
             dto.Title,
@@ -79,20 +73,15 @@ public sealed class ForumServices
     }
 
     // elimina un foro por su id
-    public async Task<bool> Delete(
+    public async Task Delete(
         Guid id,
         CancellationToken ct)
     {
         var forum = await _repository.GetById((ForumId)id, ct);
-
-        // si el foro no existe devuelve false
         if (forum is null)
-        {
-            return false;
-        }
+            throw new NotFoundException("Requested forum not found");
 
         await _repository.Delete(forum, ct);
 
-        return true;
     }
 }

@@ -26,11 +26,13 @@ public sealed class ForumConfiguration : IEntityTypeConfiguration<Forum>
 
         // configura el titulo como obligatorio
         builder.Property(f => f.Title)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(100);
 
         // configura la descripcion como obligatoria
         builder.Property(f => f.Description)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(500);
 
         // configura el estado como obligatorio
         builder.Property(f => f.State)

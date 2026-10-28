@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Application.Models;
 using MyApp.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyApp.Web.Controllers;
 
@@ -77,17 +78,13 @@ public class ForumController : ControllerBase
     }
 
     // elimina un foro
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "SysAdmin")]
     public async Task<IActionResult> Delete(
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var deleted = await _services.Delete(id, ct);
-
-        if (!deleted)
-        {
-            return NotFound();
-        }
+        await _services.Delete(id, ct);
 
         return NoContent();
     }
