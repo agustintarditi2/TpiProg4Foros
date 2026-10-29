@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MyApp.Web.Controllers;
 
-[Route("[controller]")]
+[Route("api/auth")]
 [ApiController]
 
 public class AuthController : ControllerBase
@@ -17,10 +17,10 @@ public class AuthController : ControllerBase
         _service = service;
     }
 
-    [HttpPost("auth")]
-    public async Task<ActionResult<string>> Authenticate(LoginUserDTO loginDTO)
+    [HttpPost("login")]
+    public async Task<ActionResult<string>> Authenticate(LoginUserDTO loginDTO, CancellationToken ct)
     {
-        string token = await _service.Authenticate(loginDTO);
+        string token = await _service.Authenticate(loginDTO, ct);
         return Ok(token);
     }
     
