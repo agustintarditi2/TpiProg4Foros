@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Application.Models;
 using MyApp.Application.Services;
@@ -12,6 +13,7 @@ namespace MyApp.Web.Controllers;
 
 public class PostController : ControllerBase
 {
+    
 
     private readonly PostServices _services;
 
@@ -41,9 +43,11 @@ public class PostController : ControllerBase
         return Ok(await _services.GetById(id, ct));
     }
 
+
+    [Authorize]
     [HttpPost]
 
-    public async Task<ActionResult<PostDTO>> NewPost([FromBody] PostDTO post, CancellationToken ct)
+    public async Task<ActionResult<PostDTO>> NewPost([FromBody] CreatePostDTO post, CancellationToken ct)
     {
     var newPost = await _services.Create(post, ct);
 
@@ -53,7 +57,7 @@ public class PostController : ControllerBase
         newPost
     );
 }
-
+    [Authorize]
     [HttpPatch("{id:guid}")]
 
     public async Task<ActionResult> EditPost([FromRoute] Guid id, [FromBody] string newBody, CancellationToken ct)
@@ -61,7 +65,8 @@ public class PostController : ControllerBase
         await _services.Update(id, newBody, ct);
         return NoContent();
     }
-
+    
+    [Authorize]
     [HttpPatch("{id:guid}/visibility")]
 
     public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
@@ -69,10 +74,11 @@ public class PostController : ControllerBase
         await _services.HideOrUnhide(id, hidden, ct);
         return NoContent();
     }
+    [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
     {
-        await _services.Delete(id, ct);
+        await _services.Delete((PostId)id, ct);
         return NoContent();
     }
 }
