@@ -5,6 +5,7 @@ using MyApp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
+using MyApp.Web.Middlewares.ErrorHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,9 +82,14 @@ builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
+// Acá se agregan el middleware de excepciones
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 // Se genera la API
 var app = builder.Build();
+
+
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 
 // Se agrega Swagger y OpenAPI
