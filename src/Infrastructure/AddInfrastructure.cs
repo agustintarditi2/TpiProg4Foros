@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<ISanitizer, SanitizationService>();
+        services.AddScoped<IJwtServices, JwtServices>();
 
         return services;
     }
