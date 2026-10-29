@@ -34,11 +34,33 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder.Property(u => u.DateOfBirth).IsRequired();
+        builder.Property(u => u.DateCreated).IsRequired();
 
         builder.Property(u => u.Password)
-            .HasConversion(p => p.Value, v => PasswordHash.Create(v));
+            .HasConversion(p => p.Value, v => PasswordHash.Create(v))
+            .IsRequired();
 
-        // ignora las reacciones porque todavia no estan configuradas para persistencia
-        builder.Ignore(u => u.Reactions);
+        builder.OwnsMany(u => u.Reactions, rb =>
+        {
+            rb.ToTable("Reactions");
+
+            rb.Property(r => r.User)
+                .HasConversion(id => id.Value, v => new UserId(v))
+                .IsRequired();
+
+            rb.Property(r => r.Post)
+                .HasConversion(
+                    id => id.HasValue ? id.Value.Value : (Guid?)null,
+                    v => v.HasValue ? new PostId(v.Value) : (PostId?)null);
+
+            rb.Property(r => r.Comment)
+                .HasConversion(
+                    id => id.HasValue ? id.Value.Value : (Guid?)null,
+                    v => v.HasValue ? new CommentId(v.Value) : (CommentId?)null);
+
+            rb.Property(r => r.Type).IsRequired();
+
+            rb.HasIndex(r => new { r.User, r.Post, r.Comment });
+        });
     }
 }

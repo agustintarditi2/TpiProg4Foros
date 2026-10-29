@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<IBanRepository, BanRepository>();
         services.AddScoped<ISanitizer, SanitizationService>();
+        services.AddScoped<IJwtServices, JwtServices>();
 
         return services;
     }
