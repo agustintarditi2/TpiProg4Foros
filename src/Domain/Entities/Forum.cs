@@ -36,10 +36,10 @@ public sealed class Forum
         var validatedTitle = ValidateTitle(title);
         var validatedDescription = ValidateDescription(description);
 
-        Title = ValidateTitle(title);
-        Description = ValidateDescription(description);
-
+        Title = validatedTitle;
+        Description = validatedDescription;
     }
+
     private static string ValidateTitle(string title)
     {
         if (string.IsNullOrWhiteSpace(title))
