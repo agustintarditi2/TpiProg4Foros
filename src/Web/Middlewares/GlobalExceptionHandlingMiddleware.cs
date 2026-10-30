@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Domain.Exceptions;
+using MyApp.Application.Exceptions;
+
 
 namespace MyApp.Web.Middlewares.ErrorHandling;
 
@@ -35,6 +37,13 @@ public sealed class GlobalExceptionHandlingMiddleware : IMiddleware
             await WriteProblemAsync(context, StatusCodes.Status400BadRequest,
                 "Invalid Request", "One or more arguments are invalid.");
         }
+        catch (AuthenticationFailedException ex)
+        {
+            _logger.LogWarning(ex, "Authentication failed");
+
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized,
+                "Unauthorized", ex.Message);
+         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception for {Method} {Path}",

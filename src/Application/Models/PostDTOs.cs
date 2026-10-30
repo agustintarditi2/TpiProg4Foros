@@ -29,8 +29,6 @@ public record PostDTO(
 
 
 public record CreatePostDTO(
-    Guid Poster,
     Guid Forum,
-    DateTimeOffset Date,
     string Body
 );

@@ -46,10 +46,15 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpPost]
-
     public async Task<ActionResult<PostDTO>> NewPost([FromBody] CreatePostDTO post, CancellationToken ct)
     {
-    var newPost = await _services.Create(post, ct);
+    // Obtiene el identificador del usuario autenticado
+    string? userClaim = User.FindFirst("user")?.Value;
+
+    if (!Guid.TryParse(userClaim, out Guid userId) || userId == Guid.Empty)
+        return Unauthorized();
+
+    var newPost = await _services.Create(post, userId, ct);
 
     return CreatedAtAction(
         nameof(GetById),
