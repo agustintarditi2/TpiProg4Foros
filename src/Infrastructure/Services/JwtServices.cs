@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MyApp.Domain.Enums;
 using MyApp.Domain.ValueObjects;
+using MyApp.Application.Exceptions;
 
 namespace MyApp.Infrastructure.Services;
 
@@ -40,11 +41,18 @@ public class JwtServices : IJwtServices
         {
             var key = Encoding.ASCII.GetBytes(_config["Authentication:SecretForKey"]!);
             var parameters = new TokenValidationParameters
-            {
+            {   // Verifica que el token tenga una firma válida
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                // Verifica que el token haya sido emitido por el usuario autorizado
+                ValidateIssuer = true,
+                ValidIssuer = _config["Authentication:Issuer"],
+                // Verifica que el token este dirigidio a la api
+                ValidateAudience = true,
+                ValidAudience = _config["Authentication:Audience"],
+                // Verifica que el token no este vencido
+                ValidateLifetime = true,
+                 // No permite tolerancia adicional en las fechas de validez
                 ClockSkew = TimeSpan.Zero
             };
 
@@ -55,10 +63,13 @@ public class JwtServices : IJwtServices
 
                 return principal;
             }
-            catch (Exception ex)
+            catch (SecurityTokenException)
             {
-                Console.WriteLine($"Token inválido: {ex.Message}");
-                throw new Exception("Token inválido o expirado.", ex);
+                throw new AuthenticationFailedException("Invalid or expired token.");
+            }
+            catch (ArgumentException)
+            {
+                throw new AuthenticationFailedException("Invalid or expired token.");
             }
 
         }

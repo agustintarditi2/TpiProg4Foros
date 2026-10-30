@@ -26,7 +26,7 @@ public sealed class Forum
     {
         Id = ForumId.New();
         Title = ValidateTitle(title);
-        Description = description;
+        Description = ValidateDescription(description);
         State = true;
     }
 

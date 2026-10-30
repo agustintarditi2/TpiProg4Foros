@@ -41,14 +41,14 @@ public sealed class PostServices{
         return entities.Select(PostDTO.Create).ToList();
     }
 
-    public async Task<PostDTO> Create(CreatePostDTO dto, CancellationToken ct)
+    public async Task<PostDTO> Create(CreatePostDTO dto, Guid userId, CancellationToken ct)
     {
-        if (dto.Poster == Guid.Empty)
-            throw new DomainException("A post must have an author.");
+        if (userId == Guid.Empty)
+        throw new DomainException("A post must have an author.");
 
         var entity = new Post(
             _sanitizer.Sanitize(dto.Body),
-            (UserId)dto.Poster,
+            (UserId)userId,
             (ForumId)dto.Forum,
             _clock.UtcNow
         );

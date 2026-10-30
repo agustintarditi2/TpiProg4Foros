@@ -36,16 +36,11 @@ public class ForumController : ControllerBase
         CancellationToken ct)
     {
         var forum = await _services.GetById(id, ct);
-
-        if (forum is null)
-        {
-            return NotFound();
-        }
-
         return Ok(forum);
     }
 
     // crea un nuevo foro
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpPost]
     public async Task<ActionResult<ForumDTO>> Create(
         [FromBody] CreateForumDTO dto,
@@ -61,6 +56,7 @@ public class ForumController : ControllerBase
     }
 
     // modifica un foro 
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<ForumDTO>> Update(
         [FromRoute] Guid id,
@@ -68,18 +64,12 @@ public class ForumController : ControllerBase
         CancellationToken ct)
     {
         var forum = await _services.Update(id, dto, ct);
-
-        if (forum is null)
-        {
-            return NotFound();
-        }
-
         return Ok(forum);
     }
 
     // elimina un foro
-    [HttpDelete("{id:guid}")]
     [Authorize(Roles = "SysAdmin")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(
         [FromRoute] Guid id,
         CancellationToken ct)

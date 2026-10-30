@@ -27,7 +27,7 @@ public sealed class ForumServices
     }
 
     // obtiene un foro por su id
-    public async Task<ForumDTO?> GetById(Guid id, CancellationToken ct)
+    public async Task<ForumDTO> GetById(Guid id, CancellationToken ct)
     {
         var forum = await _repository.GetById((ForumId)id, ct);
 
@@ -53,7 +53,7 @@ public sealed class ForumServices
     }
 
     // modifica un foro
-    public async Task<ForumDTO?> Update(
+    public async Task<ForumDTO> Update(
         Guid id,
         UpdateForumDTO dto,
         CancellationToken ct)
