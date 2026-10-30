@@ -6,6 +6,7 @@ using MyApp.Application.Models;
 using MyApp.Domain.Entities;
 using MyApp.Domain.Exceptions;
 using MyApp.Domain.ValueObjects;
+using MyApp.Application.Exceptions;
 
 namespace MyApp.Application.Services;
 
@@ -33,23 +34,33 @@ public class AuthServices
         // Buscamos el usuario
         User? user = await _repo.GetByEmail(EmailAddress.Create(loginData.Email), ct);
         // Tiramos excepción si no existe
-        if (user is null) throw new ApplicationServiceException("Requested user not found");
+        if (user is null) throw new AuthenticationFailedException("Invalid credentials");
         // Verificamos que la contraseña sea correcta
         bool flag = _hasher.Verify(loginData.PlainPassword, user.Password.ToString());
         // Si la contraseña es correcta, devolvemos el token
         if (flag)
             return _jwt.GenerateToken(user.Id, user.Role);
-        throw new ApplicationServiceException("Password did not match.");
+        throw new AuthenticationFailedException("Invalid credentials");
     }
 
     public async Task<UserDTO> ValidateToken(string token, CancellationToken ct)
-    {
+    {   
+
         var val = _jwt.ValidateToken(token);
-        if (val is null || val.FindFirst("user") is null) throw new ApplicationServiceException("Token has no user.");
-        Guid user = Guid.Parse(val.FindFirst("user")?.Value ?? $"{Guid.Empty}");
-        if (user == Guid.Empty) throw new ApplicationServiceException("Token user is invalid.");
+         // Busca el identificador del usuario dentro de los claims del JWT
+        string? userClaim = val?.FindFirst("user")?.Value;
+
+        if (userClaim is null)
+            throw new AuthenticationFailedException("Token has no user.");
+        // Comprueba que el identificador sea un guid valido
+        if (!Guid.TryParse(userClaim, out Guid user) || user == Guid.Empty)
+            throw new AuthenticationFailedException("Token user is invalid.");
+        // Busca al usuario en la base de datos
         User? fullUser = await _repo.GetById((UserId)user, ct);
-        if (fullUser is null) throw new ApplicationServiceException("Token user not found.");;
+
+        if (fullUser is null) 
+            throw new AuthenticationFailedException("Token user not found.");;
+
         return UserDTO.Create(fullUser, _clock.UtcNow);
     } 
 
