@@ -23,21 +23,21 @@ public sealed class BanServices
 //=========================================================================
 
 
-    public async Task<BanId> CreateBan(CreateBanDTO banDTO, CancellationToken ct)
-    {
-        User? targetUser = await _users.GetById((UserId)banDTO.UserId, ct);
-        if (targetUser is null)
-            throw new NotFoundException("User to ban not found.");
+public async Task<BanId> CreateBan(CreateBanDTO banDTO, Guid adminId, CancellationToken ct)
+{
+    User? targetUser = await _users.GetById((UserId)banDTO.UserId, ct);
+    if (targetUser is null)
+        throw new NotFoundException("User to ban not found.");
 
-        User? admin = await _users.GetById((UserId)banDTO.AdminId, ct);
-        if (admin is null)
-            throw new NotFoundException("Admin not found.");
+    User? admin = await _users.GetById((UserId)adminId, ct);
+    if (admin is null)
+        throw new NotFoundException("Admin not found.");
 
-        var ban = new Ban(targetUser, admin, banDTO.Days, banDTO.Reason);
+    var ban = new Ban(targetUser, admin, banDTO.Days, banDTO.Reason);
 
-        await _bans.Add(ban, ct);
-        return ban.Id;
-    }
+    await _bans.Add(ban, ct);
+    return ban.Id;
+}
 
 
 //=========================================================================

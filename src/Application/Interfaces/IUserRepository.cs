@@ -11,4 +11,5 @@ public interface IUserRepository
     Task Delete(User entity, CancellationToken ct);
     Task Update(User entity, CancellationToken ct);
     Task<bool> EmailExists(EmailAddress email);
+    Task<User?> GetByEmail(EmailAddress email, CancellationToken ct);
 }

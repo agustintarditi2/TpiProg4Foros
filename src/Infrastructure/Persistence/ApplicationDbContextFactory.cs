@@ -9,7 +9,7 @@ public sealed class ApplicationDbContextFactory
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlite("Data Source=ForosTup.db")
+            .UseSqlite("Data Source=../Infrastructure/ForosTup.db")
             .Options;
 
         return new ApplicationDbContext(options);

@@ -20,20 +20,20 @@ public sealed class PostServices{
     public async Task<PostDTO> GetById(PostId id, CancellationToken ct) 
     {
         var entity = await _repository.GetById(id, ct);
-        if (entity is null) throw new ApplicationServiceException("Requested post not found");
+        if (entity is null) throw new NotFoundException("Requested post not found");
         return PostDTO.Create(entity); 
     }
 
     public async Task<List<PostDTO>> GetByForum(ForumId id, CancellationToken ct) 
     {
         var entities = await _repository.GetByForum(id, ct);
-        return entities.Select(PostDTO.Create).ToList() ?? throw new ApplicationServiceException("No posts found for forum.");
+        return entities.Select(PostDTO.Create).ToList() ?? throw new NotFoundException("No posts found for forum.");
     }
     
     public async Task<List<PostDTO>> GetByPoster(UserId id, CancellationToken ct) 
     {
         var entities = await _repository.GetByPoster(id, ct);
-        return entities.Select(PostDTO.Create).ToList() ?? throw new ApplicationServiceException("No posts found for user.");
+        return entities.Select(PostDTO.Create).ToList() ?? throw new NotFoundException("No posts found for user.");
     }
 
     public async Task<PostDTO> Create(PostDTO dto, CancellationToken ct) 

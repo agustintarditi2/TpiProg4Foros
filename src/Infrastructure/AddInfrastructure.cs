@@ -21,9 +21,11 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IForumRepository, ForumRepository>();
-        
+
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.AddSingleton<ITokenService, JwtTokenService>();
         services.AddScoped<IBanRepository, BanRepository>();
         services.AddScoped<ISanitizer, SanitizationService>();
 
