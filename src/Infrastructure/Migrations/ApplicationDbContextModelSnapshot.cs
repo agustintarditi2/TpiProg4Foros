@@ -90,6 +90,8 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ParentPost");
 
+                    b.HasIndex("Poster");
+
                     b.HasIndex("RepliedComment");
 
                     b.ToTable("Comments", (string)null);
@@ -213,6 +215,12 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MyApp.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("Poster")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("MyApp.Domain.Entities.Comment", null)
                         .WithMany()
                         .HasForeignKey("RepliedComment")
@@ -232,6 +240,42 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("Poster")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MyApp.Domain.Entities.User", b =>
+                {
+                    b.OwnsMany("MyApp.Domain.ValueObjects.Reaction", "Reactions", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<Guid?>("Comment")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<Guid?>("Post")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<bool>("Type")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<Guid>("User")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("UserId", "Id");
+
+                            b1.HasIndex("User", "Post", "Comment");
+
+                            b1.ToTable("Reactions", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.Navigation("Reactions");
                 });
 #pragma warning restore 612, 618
         }

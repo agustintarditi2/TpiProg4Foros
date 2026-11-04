@@ -8,6 +8,8 @@ public record Reaction
     public UserId User {get; init;}
     public bool Type {get; init;}
 
+    private Reaction(){}
+
     public Reaction(PostId post, UserId user, bool type)
     {
         Post = post;

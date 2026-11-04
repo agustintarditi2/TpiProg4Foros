@@ -56,7 +56,7 @@ public sealed class UserServices
         User? foundUser = await _users.GetById((UserId)id, ct);
         if (foundUser is null)
             throw new NotFoundException("Requested user not found");
-        return UserDTO.Create(foundUser);
+        return UserDTO.Create(foundUser, _clock.UtcNow);
     }
 
     
@@ -69,7 +69,7 @@ public sealed class UserServices
         List<User>? userList = await _users.Get(ct);
         if (userList.Count < 1)
             throw new NotFoundException("No users found");
-        return UserDTO.CreateList(userList);
+        return UserDTO.CreateList(userList, _clock.UtcNow);
     }
 
     
@@ -167,6 +167,6 @@ public sealed class UserServices
         User? userToDelete = await _users.GetById((UserId)id, ct);
         if (userToDelete is null)
             throw new NotFoundException("Requested user not found");
-        _users.Delete(userToDelete, ct);
+        await _users.Delete(userToDelete, ct);
     }
 }

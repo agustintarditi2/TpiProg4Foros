@@ -3,6 +3,7 @@ using MyApp.Application.Services;
 using MyApp.Application.Models;
 using MyApp.Domain.Entities;
 using MyApp.Domain.ValueObjects;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyApp.Web.Controllers;
 
@@ -18,6 +19,7 @@ public class UserController : ControllerBase
         _services = services;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<List<User>>> Get(CancellationToken cancellationToken)
     {
@@ -39,6 +41,7 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = registeredUserId },          registeredUserId);
     }
 
+    [Authorize]
     [HttpPatch]
     public async Task<IActionResult> UpdateUser(PatchUserDTO userDTO, CancellationToken ct)
     {
@@ -46,6 +49,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id, CancellationToken cancellationToken)
     {

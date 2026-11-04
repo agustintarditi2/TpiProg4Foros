@@ -23,9 +23,9 @@ public sealed class UserRepository : IUserRepository
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
         return user;
     }
-    public async Task<User?> GetByEmail(EmailAddress email, CancellationToken ct)
+    public async Task<User?> GetByEmail(EmailAddress emailAddress, CancellationToken ct)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailAddress, ct);
         return user;
     }
     public async Task<User> Add(User entity, CancellationToken ct)
