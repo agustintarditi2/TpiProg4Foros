@@ -44,6 +44,17 @@ public sealed class GlobalExceptionHandlingMiddleware : IMiddleware
             await WriteProblemAsync(context, StatusCodes.Status401Unauthorized,
                 "Unauthorized", ex.Message);
          }
+        
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Access denied");
+
+            await WriteProblemAsync(
+                context,
+                StatusCodes.Status403Forbidden,
+                "Forbidden",
+                ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception for {Method} {Path}",

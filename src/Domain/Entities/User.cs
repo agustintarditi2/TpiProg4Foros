@@ -15,6 +15,7 @@ public sealed class User
     public EmailAddress Email {get; private set;}
     public PasswordHash Password {get; private set;}
     public List<Reaction>? Reactions {get; private set;}
+    public bool IsActive { get; private set; } = true;
     private User() { Name = null!; Email = null!; Password = null!;}
     // Constructor
     public User(string name, DateOnly dateOfBirth, string email, string hash, DateTimeOffset now)
@@ -68,5 +69,23 @@ public sealed class User
             if (newDateOfBirth.AddYears(18) > DateOnly.FromDateTime(now.Date))
                 throw new DomainException("You cannot become a minor again. The user must be at least 18 years old if it ever was 18 years old.");
         DateOfBirth = newDateOfBirth;
+    }
+
+    public void DeactivateAccount(string disabledPasswordHash)
+    {
+        if (!IsActive)
+            throw new DomainException("Account is already deactivated.");
+
+        // Desactiva la cuenta.
+        IsActive = false;
+
+        // Reemplaza los datos personales.
+        Name = "Usuario eliminado";
+        Email = EmailAddress.Create(
+            $"deleted-{Id.Value:N}@example.invalid");
+
+        DateOfBirth = new DateOnly(1900, 1, 1);
+        Password = PasswordHash.Create(disabledPasswordHash);
+        Role = UserRole.User;
     }
 }
