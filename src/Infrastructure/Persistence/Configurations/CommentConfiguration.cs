@@ -52,6 +52,6 @@ public sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.HasOne<Comment>()
             .WithMany()
             .HasForeignKey(c => c.RepliedComment)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

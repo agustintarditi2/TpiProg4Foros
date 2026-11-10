@@ -38,16 +38,15 @@ public record UserDTO(
 }
 
 // ======================================================================
-
 public sealed record PatchUserDTO(
     string? Name,
-    DateOnly? DateOfBirth,
     string? Email,
-    string? PlainPassword,
-    int? Role,
-    Guid Id);
+    string? PlainPassword
+    );
 
-
+public sealed record ChangeUserRoleDTO(
+    int Role
+);
 
 
 // ======================================================================

@@ -34,7 +34,7 @@ public class AuthServices
         // Buscamos el usuario
         User? user = await _repo.GetByEmail(EmailAddress.Create(loginData.Email), ct);
         // Tiramos excepción si no existe
-        if (user is null) throw new AuthenticationFailedException("Invalid credentials");
+        if (user is null || !user.IsActive) throw new AuthenticationFailedException("Invalid credentials");
         // Verificamos que la contraseña sea correcta
         bool flag = _hasher.Verify(loginData.PlainPassword, user.Password.ToString());
         // Si la contraseña es correcta, devolvemos el token
@@ -58,8 +58,8 @@ public class AuthServices
         // Busca al usuario en la base de datos
         User? fullUser = await _repo.GetById((UserId)user, ct);
 
-        if (fullUser is null) 
-            throw new AuthenticationFailedException("Token user not found.");;
+        if (fullUser is null || !fullUser.IsActive) 
+            throw new AuthenticationFailedException("Token user not found or account is inactive.");
 
         return UserDTO.Create(fullUser, _clock.UtcNow);
     } 

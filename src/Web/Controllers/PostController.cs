@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Application.Models;
 using MyApp.Application.Services;
-using MyApp.Domain.Entities;
-using MyApp.Domain.ValueObjects;
+using MyApp.Web.Extensions;
 
 namespace MyApp.Web.Controllers;
 
@@ -48,26 +47,24 @@ public class PostController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<PostDTO>> NewPost([FromBody] CreatePostDTO post, CancellationToken ct)
     {
-    // Obtiene el identificador del usuario autenticado
-    string? userClaim = User.FindFirst("user")?.Value;
+        Guid userId = User.GetAuthenticatedUserId();
 
-    if (!Guid.TryParse(userClaim, out Guid userId) || userId == Guid.Empty)
-        return Unauthorized();
+        var newPost = await _services.Create(post, userId, ct);
 
-    var newPost = await _services.Create(post, userId, ct);
-
-    return CreatedAtAction(
-        nameof(GetById),
-        new { id = newPost.id },
-        newPost
-    );
-}
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = newPost.id },
+            newPost
+        );
+    }
+    
     [Authorize]
     [HttpPatch("{id:guid}")]
 
     public async Task<ActionResult> EditPost([FromRoute] Guid id, [FromBody] string newBody, CancellationToken ct)
-    {
-        await _services.Update(id, newBody, ct);
+    {   
+        Guid userId = User.GetAuthenticatedUserId();
+        await _services.Update(id, newBody,userId, ct);
         return NoContent();
     }
     
@@ -83,7 +80,8 @@ public class PostController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
     {
-        await _services.Delete((PostId)id, ct);
+        Guid userId = User.GetAuthenticatedUserId();
+        await _services.Delete(id,userId, ct);
         return NoContent();
     }
 }

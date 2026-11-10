@@ -36,6 +36,10 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.DateOfBirth).IsRequired();
         builder.Property(u => u.DateCreated).IsRequired();
 
+        builder.Property(u => u.IsActive)
+            .HasDefaultValue(true)
+            .IsRequired();
+
         builder.Property(u => u.Password)
             .HasConversion(p => p.Value, v => PasswordHash.Create(v))
             .IsRequired();

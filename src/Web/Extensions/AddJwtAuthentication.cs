@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MyApp.Application.Interfaces;
+using MyApp.Domain.ValueObjects;
 
 namespace MyApp.Web.Extensions;
 
@@ -37,6 +39,44 @@ public static class AuthenticationExtensions
                         ValidateLifetime = true,
                         RoleClaimType = System.Security.Claims.ClaimTypes.Role
                     };
+                     options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        // Obtiene el ID del usuario desde el JWT
+                        string? userClaim = context.Principal?
+                            .FindFirst("user")?.Value;
+
+                        if (!Guid.TryParse(userClaim, out Guid userId) ||
+                            userId == Guid.Empty)
+                        {
+                            context.Fail("Invalid user identity.");
+                            return;
+                        }
+
+                        // Busca al usuario en la base de datos.
+                        var repository = context.HttpContext.RequestServices
+                            .GetRequiredService<IUserRepository>();
+
+                        var user = await repository.GetById(
+                            (UserId)userId,
+                            context.HttpContext.RequestAborted);
+
+                        // Rechaza cuentas inexistentes o desactivadas
+                        if (user is null || !user.IsActive)
+                        {
+                            context.Fail("User account is inactive.");
+                            return;
+                        }
+
+                        // Comprueba que el rol siga siendo válido
+                        if (!context.Principal!.IsInRole(user.Role.ToString()))
+                        {
+                            context.Fail("User role has changed.");
+                            return;
+                        }
+                    }
+                };
             });
 
         services.AddAuthorization();

@@ -67,11 +67,15 @@ public sealed class PostServices{
         return PostDTO.Create(addedEntity);
     }
 
-    public async Task Update(Guid id, string body, CancellationToken ct)
+    public async Task Update(Guid id, string body, Guid userId, CancellationToken ct)
     {
         var entity = await _repository.GetById((PostId)id, ct);
         if (entity is null)
             throw new NotFoundException("Requested post not found");
+        // verifica que el usuario sea el autor
+        if (entity.Poster != (UserId)userId)
+            throw new UnauthorizedAccessException(
+            "You can only edit your own posts.");
         body = _sanitizer.Sanitize(body);
         entity.EditBody(body, _clock.UtcNow);
         await _repository.Update(entity, ct);
@@ -85,10 +89,13 @@ public sealed class PostServices{
         await _repository.Update(entity, ct);
     }
 
-    public async Task Delete(Guid id, CancellationToken ct)
+    public async Task Delete(Guid id, Guid userId, CancellationToken ct)
     {
         var entity = await _repository.GetById((PostId)id, ct);
         if (entity is null) throw new NotFoundException("Requested post not found");
+        if (entity.Poster != (UserId)userId)
+            throw new UnauthorizedAccessException(
+            "You can only delete your own posts.");
         await _repository.Delete(entity, ct);
     }
 
