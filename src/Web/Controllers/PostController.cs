@@ -68,12 +68,22 @@ public class PostController : ControllerBase
         return NoContent();
     }
     
+    [Authorize(Roles = "SysAdmin, Admin")]
+    [HttpPatch("{id:guid}/suppress")]
+
+    public async Task<ActionResult> SuppressPost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
+    {
+        await _services.HideOrUnhide(id, hidden, ct);
+        return NoContent();
+    }
+    
     [Authorize]
-    [HttpPatch("{id:guid}/visibility")]
+    [HttpPatch("{id:guid}/visible")]
 
     public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
-        await _services.HideOrUnhide(id, hidden, ct);
+        Guid userId = User.GetAuthenticatedUserId();
+        await _services.HideOrUnhideSelf(id, userId, hidden, ct);
         return NoContent();
     }
     [Authorize]

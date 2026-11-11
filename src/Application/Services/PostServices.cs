@@ -89,6 +89,18 @@ public sealed class PostServices{
         await _repository.Update(entity, ct);
     }
 
+    public async Task HideOrUnhideSelf(Guid id, Guid userId, bool value, CancellationToken ct)
+    {
+        var entity = await _repository.GetById((PostId)id, ct);
+        if (entity is null) throw new NotFoundException("Requested post not found");
+        // verifica que el usuario sea el autor
+        if (entity.Poster != (UserId)userId)
+            throw new UnauthorizedAccessException(
+            "You can only hide your own posts.");
+        entity.HideOrUnhide(value);
+        await _repository.Update(entity, ct);
+    }
+
     public async Task Delete(Guid id, Guid userId, CancellationToken ct)
     {
         var entity = await _repository.GetById((PostId)id, ct);

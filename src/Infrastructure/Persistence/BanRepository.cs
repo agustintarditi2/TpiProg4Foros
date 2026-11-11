@@ -34,13 +34,13 @@ public async Task<Ban> Add(Ban entity, CancellationToken ct)
     return entity;
 }
 
-public async void Delete(Ban entity, CancellationToken ct)
+public async Task Delete(Ban entity, CancellationToken ct)
 {
     _context.Bans.Remove(entity);
     await SaveChanges(ct);
 }
 
-public async void Update(Ban entity, CancellationToken ct)
+public async Task Update(Ban entity, CancellationToken ct)
 {
     _context.Bans.Update(entity);
     await SaveChanges(ct);

@@ -25,5 +25,10 @@ public sealed record BodyText
     public static BodyText FromPersistence(string value) => new(value);
 
     public override string ToString() => Value;
+
+    public static BodyText Deleted()
+    {
+        return BodyText.Create("*Este contenido ha sido eliminado.*");
+    }
     
 }

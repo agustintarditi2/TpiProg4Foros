@@ -15,6 +15,7 @@ public record PostDTO(
 {
     public static PostDTO Create(Post post)
     {
+        if (post.Hidden) post.Redact();
         return new PostDTO(
             post.Id,
             post.Poster,

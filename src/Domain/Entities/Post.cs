@@ -6,7 +6,6 @@ namespace MyApp.Domain.Entities;
 public sealed class Post : TextEntity
 {
     public PostId Id {get; private set;}
-    public UserId Poster {get; private set;}
     public ForumId ForumId {get; private set;}
 
     private Post() {Body = null!;}
@@ -24,17 +23,4 @@ public sealed class Post : TextEntity
         Edited = false;
         Hidden = false;
     }
-
-    public void EditBody(string newBody, DateTimeOffset dateEdited)
-    {
-        Body = BodyText.Create(newBody);
-        DateEdited = dateEdited;
-        Edited = true;
-    }
-
-    public void HideOrUnhide(bool hidden)
-    {
-        Hidden = hidden;
-    }
-
 }

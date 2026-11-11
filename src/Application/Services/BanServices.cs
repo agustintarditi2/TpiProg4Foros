@@ -78,7 +78,7 @@ public sealed class BanServices
 
         ban.ModifyBan(banDTO.NewDays, banDTO.NewReason);
 
-        _bans.Update(ban, ct);
+        await _bans.Update(ban, ct);
     }
 
 
@@ -93,7 +93,7 @@ public sealed class BanServices
 
         ban.Desban();
 
-        _bans.Update(ban, ct);
+        await _bans.Update(ban, ct);
     }
 
 
@@ -105,6 +105,6 @@ public sealed class BanServices
         Ban? banToDelete = await _bans.GetById((BanId)id, ct);
         if (banToDelete is null)
             throw new NotFoundException("Requested ban not found");
-        _bans.Delete(banToDelete, ct);
+        await _bans.Delete(banToDelete, ct);
     }
 }

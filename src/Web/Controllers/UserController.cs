@@ -22,14 +22,14 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public async Task<ActionResult<List<User>>> Get(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<UserDTO>>> Get(CancellationToken cancellationToken)
     {
         var users = await _services.Get(cancellationToken);
         return Ok(users);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserDTO>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var user = await _services.GetById(id, cancellationToken);
         return Ok(user);
