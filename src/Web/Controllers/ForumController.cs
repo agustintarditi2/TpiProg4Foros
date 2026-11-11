@@ -67,6 +67,18 @@ public class ForumController : ControllerBase
         return Ok(forum);
     }
 
+    [Authorize(Roles = "Admin,SysAdmin")]
+    [HttpPatch("{id:guid}/state")]
+    public async Task<IActionResult> ChangeState(
+        [FromRoute] Guid id,
+        [FromBody] bool state,
+        CancellationToken ct)
+    {
+        await _services.ChangeState(id, state, ct);
+
+        return NoContent();
+}
+
     // elimina un foro
     [Authorize(Roles = "SysAdmin")]
     [HttpDelete("{id:guid}")]
