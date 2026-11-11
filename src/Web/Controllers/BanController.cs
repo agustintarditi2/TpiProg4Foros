@@ -35,7 +35,7 @@ public class BanController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BanId>> CreateBan(CreateBanDTO banDTO, CancellationToken cancellationToken)
     {
-        var adminIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var adminIdClaim = User.FindFirstValue("user");
         if (!Guid.TryParse(adminIdClaim, out var adminId))
             return Unauthorized();
 
