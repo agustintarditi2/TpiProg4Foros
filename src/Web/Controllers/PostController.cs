@@ -35,7 +35,7 @@ public class PostController : ControllerBase
     }
 
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
 
     public async Task<ActionResult<PostDTO>> GetById([FromRoute] Guid id, CancellationToken ct)
     {
@@ -73,9 +73,20 @@ public class PostController : ControllerBase
 
     public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
-        await _services.HideOrUnhide(id, hidden, ct);
+        Guid userId = User.GetAuthenticatedUserId();
+        await _services.HideOrUnhide(id, hidden, userId, ct);
         return NoContent();
     }
+
+    [Authorize]
+    [HttpGet("mine")]
+    public async Task<ActionResult<List<PostDTO>>> GetMyPosts(CancellationToken ct)
+        {
+            Guid userId = User.GetAuthenticatedUserId();
+            var posts = await _services.GetMyPosts(userId, ct);
+            return Ok(posts);
+        }
+
     [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
