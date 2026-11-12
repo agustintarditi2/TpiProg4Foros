@@ -7,8 +7,8 @@ public abstract class TextEntity
     public BodyText Body {get; protected set;}
     public DateTimeOffset DateCreated {get; protected set;}
     public DateTimeOffset? DateEdited {get; protected set;}
-    private bool SuppressedByAdmin = false;
-    private bool HiddenByUser = false;
+    public bool SuppressedByAdmin { get; private set; } = false;
+    public bool HiddenByUser { get; private set; }= false;
     public bool Edited {get; protected set;}
     public bool Invisible =>
         HiddenByUser || SuppressedByAdmin;
