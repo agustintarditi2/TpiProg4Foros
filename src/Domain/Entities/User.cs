@@ -4,6 +4,8 @@ using MyApp.Domain.ValueObjects;
 namespace MyApp.Domain.Entities;
 public sealed class User
 {
+    private const int MinimumAge = 14; // Mayor de 13 años cumplidos
+    private const int MaximumAge = 150;
     // Este ID es para Entity Framework, que lo va a hacer su PK.
     public UserId Id {get; private set;}
     // El rol es un enum, está tomado del archivo Domain/Enums/UserRoles.cs.
@@ -22,8 +24,7 @@ public sealed class User
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Name is required.");
-        if (dateOfBirth.ToDateTime(TimeOnly.MinValue) > now)
-            throw new DomainException("Date of birth cannot be in the future.");
+        ValidateDateOfBirth(dateOfBirth, now);
         Role = UserRole.User;
         Name = name.Trim();
         DateOfBirth = dateOfBirth;
@@ -58,12 +59,23 @@ public sealed class User
         Password = PasswordHash.Create(newHash);
 
     }
+    private static void ValidateDateOfBirth(DateOnly dateOfBirth, DateTimeOffset now)
+    {
+        var today = DateOnly.FromDateTime(now.Date);
+
+        if (dateOfBirth > today)
+            throw new DomainException("Date of birth cannot be in the future.");
+
+        if (dateOfBirth.AddYears(MinimumAge) > today)
+            throw new DomainException("User must be at least 14 years old.");
+
+        if (dateOfBirth.AddYears(MaximumAge) < today)
+            throw new DomainException("Date of birth cannot indicate an age of more than 150 years.");
+    }
+
     public void ChangeDateOfBirth(DateOnly newDateOfBirth, DateTimeOffset now)
     {
-        if (newDateOfBirth.ToDateTime(TimeOnly.MinValue) > now)
-            throw new DomainException("Date of birth cannot be in the future.");
-        if (newDateOfBirth.AddYears(150) < DateOnly.FromDateTime(now.Date))
-            throw new DomainException("Date of birth cannot indicate an age of more than 150 years.");
+        ValidateDateOfBirth(newDateOfBirth, now);
         
         if (DateOfBirth.AddYears(18) < DateOnly.FromDateTime(now.Date))
             if (newDateOfBirth.AddYears(18) > DateOnly.FromDateTime(now.Date))
