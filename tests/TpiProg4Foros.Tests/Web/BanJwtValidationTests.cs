@@ -17,6 +17,19 @@ namespace TpiProg4Foros.Tests.Web;
 // This is a middleware-event test, not a full signed-token HTTP integration test.
 public class BanJwtValidationTests
 {
+    private static User Admin()
+    {
+        var admin = Sample.User("admin@example.com");
+        admin.SetRole(MyApp.Domain.Enums.UserRole.Admin);
+        return admin;
+    }
+
+    private static void SimulateExpiredBan(Ban ban)
+    {
+        typeof(Ban).GetProperty(nameof(Ban.EndDate))!
+            .SetValue(ban, DateTime.Today.AddDays(-1));
+    }
+
     private static async Task<bool> EventRejects(User user, IBanRepository bans)
     {
         var users = new FakeUsers();
@@ -63,7 +76,7 @@ public class BanJwtValidationTests
     {
         var user = Sample.User();
         var (repository, state) = BanTestSupport.CreateRepository();
-        var ban = new Ban(user, Sample.User("admin@example.com"), 3, "Reason");
+        var ban = new Ban(user, Admin(), 3, "Reason");
         state.Items[ban.Id.Value] = ban;
 
         Assert.True(await EventRejects(user, repository));
@@ -83,7 +96,7 @@ public class BanJwtValidationTests
     {
         var user = Sample.User();
         var (repository, state) = BanTestSupport.CreateRepository();
-        var ban = new Ban(user, Sample.User("admin@example.com"), 3, "Reason");
+        var ban = new Ban(user, Admin(), 3, "Reason");
         ban.Desban();
         state.Items[ban.Id.Value] = ban;
 
@@ -95,8 +108,8 @@ public class BanJwtValidationTests
     {
         var user = Sample.User();
         var (repository, state) = BanTestSupport.CreateRepository();
-        var ban = new Ban(user, Sample.User("admin@example.com"), 3, "Reason");
-        ban.ModifyBan(0, "Expired");
+        var ban = new Ban(user, Admin(), 3, "Reason");
+        SimulateExpiredBan(ban);
         state.Items[ban.Id.Value] = ban;
 
         Assert.False(await EventRejects(user, repository));
