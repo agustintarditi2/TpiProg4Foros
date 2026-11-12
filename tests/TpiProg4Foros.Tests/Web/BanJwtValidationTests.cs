@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MyApp.Application.Interfaces;
+using MyApp.Application.Services;
 using MyApp.Domain.Entities;
 using MyApp.Web.Extensions;
 using TpiProg4Foros.Tests.Support;
@@ -48,6 +49,7 @@ public class BanJwtValidationTests
         services.AddLogging();
         services.AddSingleton<IUserRepository>(users);
         services.AddSingleton<IBanRepository>(bans);
+        services.AddTransient<BanServices>();
         services.AddJwtAuthentication(config);
 
         using var provider = services.BuildServiceProvider();

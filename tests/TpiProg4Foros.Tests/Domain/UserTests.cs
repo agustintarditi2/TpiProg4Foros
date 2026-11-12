@@ -92,14 +92,14 @@ public class UserTests
     [InlineData("123456789012")]
     [InlineData("too-short")]
     public void Invalid_password_hash_is_rejected(string hash) =>
-        Assert.Throws<DomainException>(() => new User("Ana", new DateOnly(2000, 1, 1),
+        Assert.Throws<DomainValidationException>(() => new User("Ana", new DateOnly(2000, 1, 1),
             "ana@example.com", hash, Sample.Now));
 
     [Fact]
     public void Password_hash_cannot_exceed_64_characters()
     {
         var user = Sample.User();
-        Assert.Throws<DomainException>(() => user.ChangePassword(new string('a', 65)));
+        Assert.Throws<DomainValidationException>(() => user.ChangePassword(new string('a', 65)));
     }
 
     [Fact]
