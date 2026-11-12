@@ -27,19 +27,19 @@ GitHub Actions: [Automated tests](../../actions/workflows/tests.yml). The workfl
 - **Authentication and authorization:** credentials, JWT claims, inactive accounts, role-based endpoint metadata.
 - **Ban (Domain/Application):** role hierarchy, duration and reason, active ban uniqueness, expiration/revocation, persisted status changes, banned-user restrictions on posts and authentication.
 - **Web:** JwtBearer `OnTokenValidated` event and endpoint authorization metadata.
-- **Infrastructure:** active-ban query using isolated SQLite `Data Source=:memory:`, never the repository's checked-in database.
+- **Infrastructure:** active-ban query and visibility-flag persistence for posts and comments using isolated SQLite `Data Source=:memory:`, never the repository's checked-in database.
 
 The test collaborators use per-test isolated fakes. The JWT event test registers `BanServices` to match its production dependency injection needs.
 
 ## Latest verified run — 2026-11-12
 
-[GitHub Actions run 43323092627](../../actions/runs/43323092627) (production synchronized with develop commit `5555814`):
+[GitHub Actions run 43326226544](../../actions/runs/43326226544) (production synchronized with `develop` commit `3b5dd4f`):
 
 - Build: **passed**.
-- Tests: **156 passed, 1 failed, 0 skipped (157 total)**.
-- **Resolved:** `BanTests.Admin_cannot_ban_another_admin` now passes because `Ban.cs` rejects bans of users with the same or a higher role (implemented in `develop`).
-- **Still failing:** `BanRepositoryTests.Query_returns_active_bans_only_for_requested_user`. During EF Core/SQLite model initialization, `CommentConfiguration` maps `Comment.Invisible` despite `Invisible` being a computed getter-only property with no backing field. `PostConfiguration` maps it too. This is a production mapping problem, not evidence that the ban query itself is incorrect; the query does not execute.
-- **Do not conceal the failure:** resolve the mapping in a normal code branch, merge into `develop`, synchronize `Tests`, and rerun.
+- Tests: **165 passed, 0 failed, 0 skipped**.
+- The original **157 tests all pass**, including the previously failing `BanRepositoryTests.Query_returns_active_bans_only_for_requested_user` SQLite test.
+- Added **8 SQLite round-trip cases** across posts and comments covering all combinations of `HiddenByUser` and `SuppressedByAdmin`. Each verifies that the individual flags and computed `Invisible` state survive reloading in a new `ApplicationDbContext`.
+- The `PersistVisibilityFlags` migration on `develop` adds `SuppressedByAdmin` to both tables and retains the existing `Hidden` column; the test suite uses `EnsureCreated` and does not run actual up/down migrations.
 
 ## Business rule to confirm
 
@@ -49,7 +49,6 @@ The current `develop` version of `User.cs` requires **16 years** for registratio
 
 - Endpoint metadata and the JWT event are tested; there is **no complete HTTP integration test with a signed JWT and real 401/403 responses**.
 - Full delete-cascade scenarios for deeply nested comments are not covered.
-- The `BanRepositoryTests` SQLite test cannot validate its query until the EF mapping error above is resolved.
-- A passing mock-based test does not guarantee database migrations and real HTTP requests work.
+- SQLite round-trip tests use a fresh in-memory database and do **not** validate upgrading an existing SQLite database via migrations or real HTTP requests.
 - `UserServices.ChangeEmail` may reject the user's existing email if the submitted casing differs; this is not covered by the current suite.
 - A new commit on `develop` does not automatically update `Tests`; merge/synchronize `develop` again to avoid running tests against stale production code.
