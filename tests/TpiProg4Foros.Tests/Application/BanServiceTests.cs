@@ -52,6 +52,21 @@ public class BanServiceTests
     }
 
     [Fact]
+    public async Task Cannot_create_second_active_ban_for_same_user()
+    {
+        var (target, admin) = SeedUsers();
+        var request = new CreateBanDTO(target.Id.Value, 5, "Spam");
+
+        await Service.CreateBan(request, admin.Id.Value, Ct);
+
+        await Assert.ThrowsAsync<DomainException>(() =>
+            Service.CreateBan(request, admin.Id.Value, Ct));
+
+        Assert.Single(_bans.Items);
+        Assert.Equal(1, _bans.Adds);
+    }
+
+    [Fact]
     public async Task Cannot_ban_nonexistent_user()
     {
         var (_, admin) = SeedUsers();
@@ -135,6 +150,38 @@ public class BanServiceTests
         _bans.Items[ban.Id.Value] = ban;
 
         await Service.Desban(ban.Id.Value, Ct);
+
+        Assert.Equal(BanStatus.Revocado, ban.Status);
+        Assert.Equal(1, _bans.Updates);
+    }
+
+    [Fact]
+    public async Task Reading_expired_ban_refreshes_persisted_status()
+    {
+        var (target, admin) = SeedUsers();
+        var ban = new Ban(target, admin, 2, "Reason");
+        typeof(Ban).GetProperty(nameof(Ban.EndDate))!
+            .SetValue(ban, DateTime.Today.AddDays(-1));
+        _bans.Items[ban.Id.Value] = ban;
+
+        var result = await Service.GetById(ban.Id.Value, Ct);
+
+        Assert.Equal("Vencido", result.Status);
+        Assert.Equal(BanStatus.Vencido, ban.Status);
+        Assert.Equal(1, _bans.Updates);
+    }
+
+    [Fact]
+    public async Task Cannot_revoke_same_ban_twice()
+    {
+        var (target, admin) = SeedUsers();
+        var ban = new Ban(target, admin, 2, "Reason");
+        _bans.Items[ban.Id.Value] = ban;
+
+        await Service.Desban(ban.Id.Value, Ct);
+
+        await Assert.ThrowsAsync<DomainException>(() =>
+            Service.Desban(ban.Id.Value, Ct));
 
         Assert.Equal(BanStatus.Revocado, ban.Status);
         Assert.Equal(1, _bans.Updates);
