@@ -33,15 +33,13 @@ The test collaborators use per-test isolated fakes. The JWT event test registers
 
 ## Latest verified run — 2026-11-12
 
-[GitHub Actions run 43314944851](../../actions/runs/43314944851):
+[GitHub Actions run 43323092627](../../actions/runs/43323092627) (production synchronized with develop commit `5555814`):
 
 - Build: **passed**.
-- Tests: **155 passed, 2 failed, 0 skipped (157 total)**.
-
-The two failing tests demonstrate defects in production. **Do not make these tests pass by weakening the assertions or by changing `src/` on the `Tests` branch.** Fix production in a normal feature/fix branch, merge it into `develop`, and resynchronize `Tests`.
-
-1. **`BanTests.Admin_cannot_ban_another_admin`:** in `src/Domain/Entities/Ban.cs`, the current condition `user.Role > admin.Role` allows same-role bans, although the documented business rule requires the target to have a strictly lower role. Review whether to reject `>=` (plus any special SysAdmin policy).
-2. **`BanRepositoryTests.Query_returns_active_bans_only_for_requested_user`:** the SQLite/EF Core model fails to initialize. `CommentConfiguration` maps `Comment.Invisible`, but `Invisible` in `TextEntity` is a computed read-only property with no backing field. `PostConfiguration` maps the same property, so it also needs review. The test currently cannot reach the actual ban query until mapping is fixed.
+- Tests: **156 passed, 1 failed, 0 skipped (157 total)**.
+- **Resolved:** `BanTests.Admin_cannot_ban_another_admin` now passes because `Ban.cs` rejects bans of users with the same or a higher role (implemented in `develop`).
+- **Still failing:** `BanRepositoryTests.Query_returns_active_bans_only_for_requested_user`. During EF Core/SQLite model initialization, `CommentConfiguration` maps `Comment.Invisible` despite `Invisible` being a computed getter-only property with no backing field. `PostConfiguration` maps it too. This is a production mapping problem, not evidence that the ban query itself is incorrect; the query does not execute.
+- **Do not conceal the failure:** resolve the mapping in a normal code branch, merge into `develop`, synchronize `Tests`, and rerun.
 
 ## Business rule to confirm
 
