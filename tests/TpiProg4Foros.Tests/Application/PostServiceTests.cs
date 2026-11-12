@@ -14,7 +14,9 @@ public class PostServiceTests
     private readonly FakeUsers _users = new();
     private readonly FakeClock _clock = new();
 
-    private PostServices Service => new(_posts, _forums, _users, _clock, new FakeSanitizer());
+    private PostServices Service => BanTestSupport.CreatePost(
+        _posts, _forums, _users, _clock, new FakeSanitizer(),
+        BanTestSupport.CreateRepository().Repository);
 
     [Fact]
     public async Task Create_requires_authenticated_author()
