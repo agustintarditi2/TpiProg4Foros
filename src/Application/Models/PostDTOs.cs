@@ -9,7 +9,7 @@ public record PostDTO(
     Guid Forum,
     DateTimeOffset Date,
     bool Edited,
-    bool Hidden,
+    bool Invisible,
     string Body
 )
 {
