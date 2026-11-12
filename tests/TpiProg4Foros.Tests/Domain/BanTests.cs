@@ -8,8 +8,13 @@ namespace TpiProg4Foros.Tests.Domain;
 
 public class BanTests
 {
-    private static (User Target, User Admin) Users() =>
-        (Sample.User("target@example.com"), Sample.User("admin@example.com"));
+    private static (User Target, User Admin) Users()
+    {
+        var target = Sample.User("target@example.com");
+        var admin = Sample.User("admin@example.com");
+        admin.SetRole(UserRole.Admin);
+        return (target, admin);
+    }
 
     [Fact]
     public void Creating_ban_sets_target_admin_dates_reason_and_active_status()
