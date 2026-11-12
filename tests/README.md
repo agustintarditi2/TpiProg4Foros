@@ -28,9 +28,10 @@ dotnet test tests/TpiProg4Foros.Tests/TpiProg4Foros.Tests.csproj --collect:"XPla
 - **Application / Auth:** login and token validation, inactive account restrictions.
 - **Web:** declared authorization attributes on mutating endpoints (metadata only).
 - **Domain / Ban:** creation, invalid duration/reason, dates, modification, expiration and revocation.
-- **Application / Ban:** creation, missing users/admins, invalid input, reading, modification, revocation and removal.
+- **Application / Ban:** creation, missing users/admins, invalid input, duplicate active bans, reading, expiration status refresh, modification, revocation, removal, and access guards.
 - **Application / Auth with Ban:** reject banned users on login and explicit token validation; allow expired and revoked bans.
-- **Infrastructure / Ban:** active-ban filtering in isolated in-memory SQLite (not the real database).
+- **Application / Post with Ban:** prevent banned authors from creating and editing posts.
+- **Infrastructure / Ban:** GetActiveByUserId query for active-status bans in isolated in-memory SQLite (not the real database).
 - **Web / Ban:** Admin/SysAdmin authorization metadata and JwtBearer `OnTokenValidated` event behavior (without a real HTTP request).
 
 Fakes are per-test in-memory collaborators, not the production SQLite repository.
@@ -39,11 +40,12 @@ The workflow `.github/workflows/tests.yml` runs on pushes to `Tests` and relevan
 ## Known coverage limits / findings
 
 - Full HTTP integration tests (including deletion cascading to nested comments), HTTP status codes and signed-token authorization are **not** covered. A focused SQLite repository test and JwtBearer event tests are included for bans.
-- **Branch synchronization:** the current remote `Tests` branch contains the older production implementation without `IBanRepository.HasActiveBan`, ban checks in `AuthServices`, or ban checks in the JWT event. The new regression tests for these behaviors are expected to **fail** until the corresponding source changes are pushed and merged into `Tests`. No production code was changed by this test commit.
-- The test helpers adapt to both old and new `AuthServices` constructors and `IBanRepository` async method signatures, so the suite can compile while the branches are synchronized.
+- **Branch synchronization:** `develop` currently includes new ban rules (role hierarchy, no duplicate active ban, expiration refresh, `IBanRepository.GetActiveByUserId`, and `PostServices` ban guards) that have not been merged into `Tests`. `develop` does **not yet** contain ban checks in `AuthServices` or `AddJwtAuthentication`. Regression tests intentionally expose these gaps; expect red tests until production changes are integrated and the remaining behavior is implemented. This work changed only files inside `tests/`.
+- Test helpers adapt to old/new `AuthServices` and `PostServices` constructors, and old/new `IBanRepository` method signatures, to keep the test project compilable while the branches are synchronized.
 - Ban authorization tests inspect `[Authorize]` metadata only; they do not assert actual HTTP 401/403 responses.
 - JWT event tests call the registered validation event directly; they do not perform real signed-JWT HTTP integration.
 - `BanRepositoryTests` use an ephemeral SQLite database via `Data Source=:memory:`.
+- Current `develop` permits an Admin to ban another Admin despite the comment requiring a lower target role. `BanTests.Admin_cannot_ban_another_admin` is a deliberate failing regression until that authorization rule is corrected.
 - Post's domain constructor does not explicitly reject an empty `Poster` ID; the application service does reject an empty authenticated ID.
 - User's constructor currently does not check the maximum age, while `ChangeDateOfBirth` does.
 - `UserServices.ChangeEmail` checks duplicate existence without exempting the current account. Re-submitting the same email may be rejected.
