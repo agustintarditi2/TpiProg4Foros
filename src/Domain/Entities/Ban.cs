@@ -14,7 +14,7 @@ namespace MyApp.Domain.Entities
         public UserId AdminId { get; private set; }
 
         public DateTime EndDate { get; private set; }
-        
+
         public DateTime StartDate { get; private set; }
 
         public int Duration { get; private set; }
@@ -26,25 +26,41 @@ namespace MyApp.Domain.Entities
         private Ban() { Reason = null!; }
 
         public Ban(User user, User admin, int days, string reason)
-  {
-        if (days <= 0)
-            throw new DomainException("Ban duration must be positive.");
-        if (string.IsNullOrWhiteSpace(reason))
-            throw new DomainException("Reason is required.");
+        {
 
-        Id = BanId.New();
-        UserId = user.Id;
-        AdminId = admin.Id;
-        Duration = days;
-        StartDate = DateTime.Today;
-        EndDate = StartDate.AddDays(days);
-        Reason = reason.Trim();
-    }
+            if (user.Id == admin.Id)
+                throw new DomainException("You cannot ban yourself."); //lo que dice el mensaje de error
+
+            // Solo se puede banear a alguien con rol menor al propio.
+            // Depende del orden del enum UserRole: User < Admin < SysAdmin.
+            if (user.Role > admin.Role)
+                throw new UnauthorizedAccessException("You can only ban users with a lower role than yours.");
+
+            if (days <= 0)
+                throw new DomainException("Ban duration must be positive.");
+            if (string.IsNullOrWhiteSpace(reason))
+                throw new DomainException("Reason is required.");
+
+            Id = BanId.New();
+            UserId = user.Id;
+            AdminId = admin.Id;
+            Duration = days;
+            StartDate = DateTime.Today;
+            EndDate = StartDate.AddDays(days);
+            Reason = reason.Trim();
+        }
 
         public void ModifyBan(int newDays, string newWhy)
         {
             if (newDays != this.Duration)
             {
+                if (!ValidateState())
+                    throw new DomainException("Only active bans can be modified.");
+                if (newDays <= 0)
+                    throw new DomainException("Ban duration must be positive.");
+                if (string.IsNullOrWhiteSpace(newWhy))
+                    throw new DomainException("Reason is required.");
+
                 DateTime newEndDate = this.StartDate.AddDays(newDays);
                 DateTime today = DateTime.Today;
 
@@ -66,10 +82,13 @@ namespace MyApp.Domain.Entities
 
         public void Desban()
         {
+            if (!ValidateState())
+                throw new DomainException("Only active bans can be revoked.");
+                
             this.Status = BanStatus.Revocado;
         }
 
-        public bool ValidatState()
+        public bool ValidateState()
         {
             if (this.Status == BanStatus.Activo && DateTime.Today >= this.EndDate)
             {

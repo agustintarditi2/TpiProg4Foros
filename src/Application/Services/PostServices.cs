@@ -13,12 +13,14 @@ public sealed class PostServices{
     private readonly ISanitizer _sanitizer;
     private readonly IUserRepository _userRepository;
     private readonly IForumRepository _forumRepository;
-    public PostServices(IPostRepository postRepository, IForumRepository forumRepository,IUserRepository userRepository, IClock clock, ISanitizer sanitizer){
+    private readonly BanServices _bans;
+    public PostServices(IPostRepository postRepository, IForumRepository forumRepository,IUserRepository userRepository, IClock clock, ISanitizer sanitizer, BanServices bans){
         _sanitizer = sanitizer;
         _repository = postRepository;
         _forumRepository = forumRepository;
         _userRepository = userRepository;
         _clock = clock;
+        _bans = bans;
     }
 
     public async Task<PostDTO> GetById(Guid id, CancellationToken ct)
@@ -59,6 +61,7 @@ public sealed class PostServices{
 
     public async Task<PostDTO> Create(CreatePostDTO dto, Guid userId, CancellationToken ct)
     {
+        await _bans.EnsureNotBanned(userId, ct);
         if (userId == Guid.Empty)
         throw new DomainException("A post must have an author.");
 
@@ -89,6 +92,7 @@ public sealed class PostServices{
 
     public async Task Update(Guid id, string body, Guid userId, CancellationToken ct)
     {
+        await _bans.EnsureNotBanned(userId, ct);
         var entity = await _repository.GetById((PostId)id, ct);
         if (entity is null)
             throw new NotFoundException("Requested post not found");
