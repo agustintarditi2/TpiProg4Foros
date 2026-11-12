@@ -66,3 +66,34 @@ public sealed record CreateUserDTO(
 public sealed record LoginUserDTO(
     string Email,
     string PlainPassword);
+
+
+
+
+
+public record RestrictedUserDTO(
+    string Name,
+    int Age,
+    string UserRole,
+    Guid UserId
+    )
+{
+    public static RestrictedUserDTO Create( User entity, DateTimeOffset now )
+    {
+        DateOnly today = DateOnly.FromDateTime(now.DateTime);
+        DateOnly birthDate = entity.DateOfBirth;
+        int age = today.Year - birthDate.Year;
+        if (today < birthDate.AddYears(age)) age--;
+        return new RestrictedUserDTO(
+            entity.Name,
+            age,
+            entity.Role.ToString(),
+            entity.Id
+        );
+        
+    }
+    public static List<RestrictedUserDTO> CreateList(IEnumerable<User> entities, DateTimeOffset now)
+    {
+        return entities.Select(entity => Create(entity, now)).ToList();
+    }
+}

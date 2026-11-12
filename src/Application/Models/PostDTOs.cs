@@ -15,13 +15,14 @@ public record PostDTO(
 {
     public static PostDTO Create(Post post)
     {
+        if (post.Invisible) post.Redact();
         return new PostDTO(
             post.Id,
             post.Poster,
             post.ForumId,
             post.DateEdited ?? post.DateCreated,
             post.Edited,
-            post.Hidden,
+            post.Invisible,
             post.Body.ToString()
         );
     }

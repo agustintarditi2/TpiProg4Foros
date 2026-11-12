@@ -9,7 +9,6 @@ public sealed class User
     // El rol es un enum, está tomado del archivo Domain/Enums/UserRoles.cs.
     public UserRole Role {get; private set;}
     public string Name {get; private set;}
-    
     public DateOnly DateOfBirth {get; private set;}
     public DateTimeOffset DateCreated {get; private set;}
     public EmailAddress Email {get; private set;}

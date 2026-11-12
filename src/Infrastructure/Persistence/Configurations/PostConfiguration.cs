@@ -32,7 +32,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.Property(p => p.DateCreated).IsRequired();
         builder.Property(p => p.DateEdited);
         builder.Property(p => p.Edited).IsRequired();
-        builder.Property(p => p.Hidden).IsRequired();
+        builder.Property(p => p.Invisible).IsRequired();
 
         builder.HasOne<User>()
             .WithMany()
