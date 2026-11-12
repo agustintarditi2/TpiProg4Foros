@@ -32,6 +32,44 @@ public class UserTests
         Assert.Throws<DomainException>(() => new User(name!, new DateOnly(2000, 1, 1),
             "ana@example.com", "valid-password-hash", Sample.Now));
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(13)]
+    [InlineData(15)]
+    public void Registration_rejects_users_younger_than_16(int age)
+    {
+        var now = new DateTimeOffset(2026, 11, 12, 12, 0, 0, TimeSpan.Zero);
+        var birthDate = DateOnly.FromDateTime(now.Date).AddYears(-age);
+
+        Assert.Throws<DomainException>(() => new User(
+            "Ana", birthDate, "ana@example.com", "valid-password-hash", now));
+    }
+
+    [Fact]
+    public void Registration_rejects_user_one_day_before_16th_birthday()
+    {
+        var now = new DateTimeOffset(2026, 11, 12, 12, 0, 0, TimeSpan.Zero);
+        var birthDate = DateOnly.FromDateTime(now.Date).AddYears(-16).AddDays(1);
+
+        Assert.Throws<DomainException>(() => new User(
+            "Ana", birthDate, "ana@example.com", "valid-password-hash", now));
+    }
+
+    [Theory]
+    [InlineData(16)]
+    [InlineData(17)]
+    [InlineData(18)]
+    public void Registration_accepts_users_from_16th_birthday(int age)
+    {
+        var now = new DateTimeOffset(2026, 11, 12, 12, 0, 0, TimeSpan.Zero);
+        var birthDate = DateOnly.FromDateTime(now.Date).AddYears(-age);
+
+        var user = new User(
+            "Ana", birthDate, "ana@example.com", "valid-password-hash", now);
+
+        Assert.Equal(birthDate, user.DateOfBirth);
+    }
+
     [Fact]
     public void Future_birth_date_is_rejected()
     {
@@ -95,26 +133,20 @@ public class UserTests
     }
 
     [Fact]
-    public void Birth_date_cannot_be_in_the_future_or_indicate_over_150_years()
+    public void Birth_date_has_no_public_setter_or_change_method()
     {
-        var user = Sample.User();
-        Assert.Throws<DomainException>(() => user.ChangeDateOfBirth(new DateOnly(2030, 1, 1), Sample.Now));
-        Assert.Throws<DomainException>(() => user.ChangeDateOfBirth(new DateOnly(1800, 1, 1), Sample.Now));
+        var property = typeof(User).GetProperty(nameof(User.DateOfBirth));
+
+        Assert.NotNull(property);
+        Assert.False(property!.SetMethod?.IsPublic ?? false);
+        Assert.Null(typeof(User).GetMethod("ChangeDateOfBirth"));
     }
 
     [Fact]
-    public void Adult_cannot_become_minor_again()
+    public void User_patch_does_not_allow_birth_date_changes()
     {
-        var user = Sample.User();
-        Assert.Throws<DomainException>(() => user.ChangeDateOfBirth(new DateOnly(2011, 1, 1), Sample.Now));
-    }
-
-    [Fact]
-    public void Valid_birth_date_change_is_saved()
-    {
-        var user = Sample.User();
-        user.ChangeDateOfBirth(new DateOnly(1999, 1, 1), Sample.Now);
-        Assert.Equal(new DateOnly(1999, 1, 1), user.DateOfBirth);
+        Assert.Null(typeof(MyApp.Application.Models.PatchUserDTO)
+            .GetProperty("DateOfBirth"));
     }
 
     [Fact]
