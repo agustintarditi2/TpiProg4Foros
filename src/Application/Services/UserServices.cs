@@ -108,6 +108,8 @@ public sealed class UserServices
 
     private async Task<User> ChangeEmail(string email, User user)
     {
+        if (user.Email.ToString()==email)
+            return user;
         if (await _users.EmailExists(EmailAddress.Create(email)))
             throw new DomainException("An account for this email address already exists.");
         user.ChangeEmail(email);

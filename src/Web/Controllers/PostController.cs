@@ -73,7 +73,7 @@ public class PostController : ControllerBase
 
     public async Task<ActionResult> SuppressPost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
-        await _services.HideOrUnhide(id, hidden, ct);
+        await _services.Suppress(id, hidden, ct);
         return NoContent();
     }
     

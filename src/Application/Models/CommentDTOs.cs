@@ -16,14 +16,14 @@ public record CommentDTO(
 {
     public static CommentDTO Create(Comment comment)
     {
-        if (comment.Hidden) comment.Redact();
+        if (comment.Invisible) comment.Redact();
         return new CommentDTO(
             comment.Id,
             comment.Poster,
             comment.ParentPost,
             comment.DateEdited ?? comment.DateCreated,
             comment.Edited,
-            comment.Hidden,
+            comment.Invisible,
             comment.Body.ToString(),
             comment.RepliedComment
         );

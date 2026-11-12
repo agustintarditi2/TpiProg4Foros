@@ -98,7 +98,7 @@ public sealed class CommentServices{
     {
         var entity = await _repository.GetById((CommentId)id, ct);
         if (entity is null) throw new NotFoundException("Requested comment not found");
-        entity.HideOrUnhide(value);
+        entity.ToggleHidden(value);
         await _repository.Update(entity, ct);
     }
 
@@ -110,7 +110,7 @@ public sealed class CommentServices{
         if (entity.Poster != (UserId)userId)
             throw new UnauthorizedAccessException(
             "You can only hide your own comments.");
-        entity.HideOrUnhide(value);
+        entity.ToggleHidden(value);
         await _repository.Update(entity, ct);
     }
 

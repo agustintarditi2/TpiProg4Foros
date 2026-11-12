@@ -7,8 +7,11 @@ public abstract class TextEntity
     public BodyText Body {get; protected set;}
     public DateTimeOffset DateCreated {get; protected set;}
     public DateTimeOffset? DateEdited {get; protected set;}
+    private bool SuppressedByAdmin = false;
+    private bool HiddenByUser = false;
     public bool Edited {get; protected set;}
-    public bool Hidden {get; protected set;}
+    public bool Invisible =>
+        HiddenByUser || SuppressedByAdmin;
     public UserId Poster {get; protected set;}
 
     protected TextEntity()
@@ -23,10 +26,16 @@ public abstract class TextEntity
         Edited = true;
     }
 
-    public void HideOrUnhide(bool hidden)
+    public void ToggleHidden(bool hidden)
     {
-        Hidden = hidden;
+        HiddenByUser = hidden;
     }
+
+    public void ToggleSuppressed(bool hidden)
+    {
+        SuppressedByAdmin = hidden;
+    }
+
     public void Redact()
     {
         Body = BodyText.Create("*Este comentario está oculto.*");
