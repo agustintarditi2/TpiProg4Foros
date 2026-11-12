@@ -98,7 +98,7 @@ public sealed class CommentServices{
     {
         var entity = await _repository.GetById((CommentId)id, ct);
         if (entity is null) throw new NotFoundException("Requested comment not found");
-        entity.ToggleHidden(value);
+        entity.ToggleSuppressed(value);
         await _repository.Update(entity, ct);
     }
 

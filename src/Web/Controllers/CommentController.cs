@@ -86,7 +86,7 @@ public class CommentController : ControllerBase
     [Authorize]
     [HttpPatch("{id:guid}/visible")]
 
-    public async Task<ActionResult> HideOrUnhideComment([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
+    public async Task<ActionResult> HideComment([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
         Guid userId = User.GetAuthenticatedUserId();
         await _services.HideOrUnhideSelf(id, userId, hidden, ct);
