@@ -4,7 +4,7 @@ using MyApp.Domain.ValueObjects;
 namespace MyApp.Domain.Entities;
 public sealed class User
 {
-    private const int MinimumAge = 14; // Mayor de 13 años cumplidos
+    private const int MinimumAge = 13; // Registro permitido desde los 13 años cumplidos
     private const int MaximumAge = 150;
     // Este ID es para Entity Framework, que lo va a hacer su PK.
     public UserId Id {get; private set;}
@@ -67,7 +67,7 @@ public sealed class User
             throw new DomainException("Date of birth cannot be in the future.");
 
         if (dateOfBirth.AddYears(MinimumAge) > today)
-            throw new DomainException("User must be at least 14 years old.");
+            throw new DomainException("User must be at least 13 years old.");
 
         if (dateOfBirth.AddYears(MaximumAge) < today)
             throw new DomainException("Date of birth cannot indicate an age of more than 150 years.");
