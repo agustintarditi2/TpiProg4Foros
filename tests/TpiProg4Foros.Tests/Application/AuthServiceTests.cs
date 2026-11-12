@@ -14,7 +14,8 @@ public class AuthServiceTests
     private readonly FakeJwt _jwt = new();
     private readonly FakeClock _clock = new();
 
-    private AuthServices Service => new(_users, _hasher, _jwt, _clock);
+    private AuthServices Service => BanTestSupport.CreateAuth(
+        _users, BanTestSupport.CreateRepository().Repository, _hasher, _jwt, _clock);
 
     [Fact]
     public async Task Correct_credentials_issue_token_with_actual_role()
