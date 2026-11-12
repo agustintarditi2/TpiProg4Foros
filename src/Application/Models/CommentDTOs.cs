@@ -9,7 +9,7 @@ public record CommentDTO(
     Guid ParentPost,
     DateTimeOffset Date,
     bool Edited,
-    bool Hidden,
+    bool Invisible,
     string Body,
     Guid? RepliedComment = null
 )
