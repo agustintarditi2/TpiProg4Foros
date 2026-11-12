@@ -42,6 +42,7 @@ public class BanRepositoryTests
 
         var target = Sample.User("target@example.com");
         var admin = Sample.User("admin@example.com");
+        admin.SetRole(MyApp.Domain.Enums.UserRole.Admin);
         var other = Sample.User("other@example.com");
         db.Users.AddRange(target, admin, other);
         await db.SaveChangesAsync(Ct);
