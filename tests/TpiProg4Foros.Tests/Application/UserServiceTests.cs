@@ -30,6 +30,32 @@ public class UserServiceTests
     }
 
     [Fact]
+    public async Task Registration_rejects_user_before_16th_birthday_without_persisting()
+    {
+        var today = DateOnly.FromDateTime(_clock.UtcNow.Date);
+        var birthDate = today.AddYears(-16).AddDays(1);
+
+        await Assert.ThrowsAsync<DomainException>(() => Service.CreateUser(
+            new CreateUserDTO("Young user", birthDate,
+                "underage@example.com", "Secret123!"), Ct));
+
+        Assert.Empty(_users.Items);
+    }
+
+    [Fact]
+    public async Task Registration_allows_user_on_16th_birthday()
+    {
+        var today = DateOnly.FromDateTime(_clock.UtcNow.Date);
+        var birthDate = today.AddYears(-16);
+
+        var id = await Service.CreateUser(
+            new CreateUserDTO("Sixteen", birthDate,
+                "sixteen@example.com", "Secret123!"), Ct);
+
+        Assert.Equal(birthDate, _users.Items[id.Value].DateOfBirth);
+    }
+
+    [Fact]
     public async Task Duplicate_email_is_rejected_before_registration()
     {
         var existing = Sample.User();
