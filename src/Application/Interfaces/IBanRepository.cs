@@ -8,7 +8,8 @@ public interface IBanRepository
     Task<List<Ban>> Get(CancellationToken ct);
     Task<Ban?> GetById(BanId id, CancellationToken ct);
     Task<Ban> Add(Ban entity, CancellationToken ct);
-    void Delete(Ban entity, CancellationToken ct);
-    void Update(Ban entity, CancellationToken ct);
+    Task Delete(Ban entity, CancellationToken ct);
+    Task Update(Ban entity, CancellationToken ct);
+    Task<List<Ban>> GetActiveByUserId(UserId userId, CancellationToken ct);
 
 }
