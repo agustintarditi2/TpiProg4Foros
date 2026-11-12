@@ -36,9 +36,18 @@ public class BanAuthTests
 
     private Ban BanUser(User user)
     {
-        var ban = new Ban(user, Sample.User("admin@example.com"), 7, "Violation");
+        var admin = Sample.User("admin@example.com");
+        admin.SetRole(MyApp.Domain.Enums.UserRole.Admin);
+        var ban = new Ban(user, admin, 7, "Violation");
         _bans.Items[ban.Id.Value] = ban;
         return ban;
+    }
+
+    private static void SimulateExpiredBan(Ban ban)
+    {
+        // Test fixture only: creates a historical EndDate without changing production code.
+        typeof(Ban).GetProperty(nameof(Ban.EndDate))!
+            .SetValue(ban, DateTime.Today.AddDays(-1));
     }
 
     [Fact]
@@ -68,7 +77,7 @@ public class BanAuthTests
     public async Task Login_is_allowed_when_ban_has_expired()
     {
         var user = SeedUser();
-        BanUser(user).ModifyBan(0, "Expired");
+        SimulateExpiredBan(BanUser(user));
 
         var token = await Service.Authenticate(
             new LoginUserDTO(user.Email.Value, "correct-pass"), Ct);
@@ -103,7 +112,7 @@ public class BanAuthTests
     public async Task Explicit_token_validation_allows_expired_ban()
     {
         var user = SeedUser();
-        BanUser(user).ModifyBan(0, "Expired");
+        SimulateExpiredBan(BanUser(user));
         _jwt.SetUserClaim(user.Id.Value.ToString());
 
         var profile = await Service.ValidateToken("previously-issued-token", Ct);
