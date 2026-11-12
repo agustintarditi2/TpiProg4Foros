@@ -2,6 +2,7 @@ using System.Reflection;
 using MyApp.Application.Abstractions;
 using MyApp.Application.Interfaces;
 using MyApp.Application.Services;
+using MyApp.Application.Models;
 using MyApp.Domain.Entities;
 using MyApp.Domain.Enums;
 using MyApp.Domain.ValueObjects;
@@ -50,6 +51,13 @@ public class BanRepositoryProxy : DispatchProxy
                 Deletes++;
                 return method.ReturnType == typeof(void) ? null : Task.CompletedTask;
             }
+            case "GetActiveByUserId":
+            {
+                var userId = (UserId)args[0]!;
+                return Task.FromResult(Items.Values
+                    .Where(b => b.UserId == userId && b.Status == BanStatus.Activo)
+                    .ToList());
+            }
             case "HasActiveBan":
             {
                 var userId = (UserId)args[0]!;
@@ -86,11 +94,31 @@ internal static class BanTestSupport
         {
             if (parameter.ParameterType == typeof(IUserRepository)) return (object)users;
             if (parameter.ParameterType == typeof(IBanRepository)) return bans;
+            if (parameter.ParameterType == typeof(BanServices)) return new BanServices(bans, users);
             if (parameter.ParameterType == typeof(IPasswordHasher)) return hasher;
             if (parameter.ParameterType == typeof(IJwtServices)) return jwt;
             if (parameter.ParameterType == typeof(IClock)) return clock;
             throw new InvalidOperationException($"Unknown AuthServices dependency: {parameter.ParameterType.Name}");
         }).ToArray();
         return (AuthServices)constructor.Invoke(args);
+    }
+
+    // PostServices on newer develop versions has a BanServices dependency.
+    public static PostServices CreatePost(
+        IPostRepository posts, IForumRepository forums, IUserRepository users,
+        IClock clock, ISanitizer sanitizer, IBanRepository bans)
+    {
+        var constructor = typeof(PostServices).GetConstructors().Single();
+        var args = constructor.GetParameters().Select(parameter =>
+        {
+            if (parameter.ParameterType == typeof(IPostRepository)) return (object)posts;
+            if (parameter.ParameterType == typeof(IForumRepository)) return forums;
+            if (parameter.ParameterType == typeof(IUserRepository)) return users;
+            if (parameter.ParameterType == typeof(IClock)) return clock;
+            if (parameter.ParameterType == typeof(ISanitizer)) return sanitizer;
+            if (parameter.ParameterType == typeof(BanServices)) return new BanServices(bans, users);
+            throw new InvalidOperationException($"Unknown PostServices dependency: {parameter.ParameterType.Name}");
+        }).ToArray();
+        return (PostServices)constructor.Invoke(args);
     }
 }
