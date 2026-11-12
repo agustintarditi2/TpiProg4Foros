@@ -10,5 +10,6 @@ public interface IBanRepository
     Task<Ban> Add(Ban entity, CancellationToken ct);
     Task Delete(Ban entity, CancellationToken ct);
     Task Update(Ban entity, CancellationToken ct);
+    Task<List<Ban>> GetActiveByUserId(UserId userId, CancellationToken ct);
 
 }

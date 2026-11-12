@@ -72,6 +72,19 @@ public sealed class ForumServices
         return ForumDTO.Create(forum);
     }
 
+    public async Task ChangeState(Guid id, bool state, CancellationToken ct)
+    {
+        var forum = await _repository.GetById((ForumId)id, ct);
+        if (forum is null)
+            throw new NotFoundException("Requested forum not found");
+        if (state)
+            forum.Activate();
+        else
+            forum.Deactivate();
+
+        await _repository.Update(forum, ct);
+    }
+
     // elimina un foro por su id
     public async Task Delete(
         Guid id,

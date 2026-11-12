@@ -1,9 +1,7 @@
 using MyApp.Application;
 using MyApp.Web.Extensions;
 using MyApp.Infrastructure;
-using MyApp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
 using MyApp.Web.Middlewares.ErrorHandling;
 

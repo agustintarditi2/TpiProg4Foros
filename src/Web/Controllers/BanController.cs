@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Application.Services;
 using MyApp.Application.Models;
 using MyApp.Domain.ValueObjects;
+using System.Security.Claims;
+using MyApp.Web.Extensions;
 
 namespace MyApp.Web.Controllers;
 
@@ -14,14 +17,14 @@ public class BanController : ControllerBase
     {
         _services = services;
     }
-
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpGet]
     public async Task<ActionResult<List<BanDTO>>> Get(CancellationToken cancellationToken)
     {
         var bans = await _services.Get(cancellationToken);
         return Ok(bans);
     }
-
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<BanDTO>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -29,13 +32,17 @@ public class BanController : ControllerBase
         return Ok(ban);
     }
 
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpPost]
     public async Task<ActionResult<BanId>> CreateBan(CreateBanDTO banDTO, CancellationToken cancellationToken)
     {
-        var createdBanId = await _services.CreateBan(banDTO, cancellationToken);
+        Guid adminId = User.GetAuthenticatedUserId();
+
+        var createdBanId = await _services.CreateBan(banDTO, adminId, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = createdBanId }, createdBanId);
     }
 
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpPatch]
     public async Task<IActionResult> ModifyBan(ModifyBanDTO banDTO, CancellationToken ct)
     {
@@ -43,6 +50,7 @@ public class BanController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpPatch("{id}/revoke")]
     public async Task<IActionResult> Desban([FromRoute] Guid id, CancellationToken ct)
     {
@@ -50,6 +58,7 @@ public class BanController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin,SysAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBan([FromRoute] Guid id, CancellationToken cancellationToken)
     {
