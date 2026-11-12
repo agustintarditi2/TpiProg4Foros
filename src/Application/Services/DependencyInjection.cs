@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         services.AddScoped<UserServices>();
         services.AddScoped<PostServices>();
+        services.AddScoped<CommentServices>();
         services.AddScoped<BanServices>();
         services.AddScoped<ForumServices>();
         services.AddScoped<AuthServices>();

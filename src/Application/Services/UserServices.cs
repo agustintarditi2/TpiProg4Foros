@@ -58,18 +58,31 @@ public sealed class UserServices
             throw new NotFoundException("Requested user not found");
         return UserDTO.Create(foundUser, _clock.UtcNow);
     }
+//=========================================================================
+
+
+
+    public async Task<RestrictedUserDTO> GetRestrictedById(Guid id, CancellationToken ct)
+    {
+        User? foundUser = await _users.GetById((UserId)id, ct);
+        if (foundUser is null)
+            throw new NotFoundException("Requested user not found");
+        return RestrictedUserDTO.Create(foundUser, _clock.UtcNow);
+    }
+
+    
 
     
 //=========================================================================
 
 
 
-    public async Task<List<UserDTO>> Get(CancellationToken ct)
+    public async Task<List<RestrictedUserDTO>> Get(CancellationToken ct)
     {
         List<User>? userList = await _users.Get(ct);
         if (userList.Count < 1)
             throw new NotFoundException("No users found");
-        return UserDTO.CreateList(userList, _clock.UtcNow);
+        return RestrictedUserDTO.CreateList(userList, _clock.UtcNow);
     }
 
     
@@ -108,6 +121,8 @@ public sealed class UserServices
 
     private async Task<User> ChangeEmail(string email, User user)
     {
+        if (user.Email.ToString()==email)
+            return user;
         if (await _users.EmailExists(EmailAddress.Create(email)))
             throw new DomainException("An account for this email address already exists.");
         user.ChangeEmail(email);

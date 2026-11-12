@@ -9,7 +9,6 @@ public sealed class User
     // El rol es un enum, está tomado del archivo Domain/Enums/UserRoles.cs.
     public UserRole Role {get; private set;}
     public string Name {get; private set;}
-    
     public DateOnly DateOfBirth {get; private set;}
     public DateTimeOffset DateCreated {get; private set;}
     public EmailAddress Email {get; private set;}
@@ -24,6 +23,12 @@ public sealed class User
             throw new DomainException("Name is required.");
         if (dateOfBirth.ToDateTime(TimeOnly.MinValue) > now)
             throw new DomainException("Date of birth cannot be in the future.");
+        DateOnly today = DateOnly.FromDateTime(now.Date);
+
+        if (dateOfBirth.AddYears(16) > today)
+            throw new DomainException(
+                "You must be older than 16 years to register.");
+
         Role = UserRole.User;
         Name = name.Trim();
         DateOfBirth = dateOfBirth;
@@ -58,19 +63,6 @@ public sealed class User
         Password = PasswordHash.Create(newHash);
 
     }
-    public void ChangeDateOfBirth(DateOnly newDateOfBirth, DateTimeOffset now)
-    {
-        if (newDateOfBirth.ToDateTime(TimeOnly.MinValue) > now)
-            throw new DomainException("Date of birth cannot be in the future.");
-        if (newDateOfBirth.AddYears(150) < DateOnly.FromDateTime(now.Date))
-            throw new DomainException("Date of birth cannot indicate an age of more than 150 years.");
-        
-        if (DateOfBirth.AddYears(18) < DateOnly.FromDateTime(now.Date))
-            if (newDateOfBirth.AddYears(18) > DateOnly.FromDateTime(now.Date))
-                throw new DomainException("You cannot become a minor again. The user must be at least 18 years old if it ever was 18 years old.");
-        DateOfBirth = newDateOfBirth;
-    }
-
     public void DeactivateAccount(string disabledPasswordHash)
     {
         if (!IsActive)

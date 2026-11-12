@@ -37,7 +37,7 @@ public sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(c => c.DateCreated).IsRequired();
         builder.Property(c => c.DateEdited);
         builder.Property(c => c.Edited).IsRequired();
-        builder.Property(c => c.Hidden).IsRequired();
+        builder.Property(c => c.Invisible).IsRequired();
 
         builder.HasOne<Post>()
             .WithMany()
