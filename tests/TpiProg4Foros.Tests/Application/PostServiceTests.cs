@@ -149,11 +149,11 @@ public class PostServiceTests
         _posts.Items[post.Id.Value] = post;
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
-            Service.HideOrUnhide(post.Id.Value, true, Guid.NewGuid(), Ct));
-        Assert.False(post.Hidden);
+            Service.HideOrUnhideSelf(post.Id.Value, Guid.NewGuid(), true, Ct));
+        Assert.False(post.Invisible);
 
-        await Service.HideOrUnhide(post.Id.Value, true, owner.Id.Value, Ct);
-        Assert.True(post.Hidden);
+        await Service.HideOrUnhideSelf(post.Id.Value, owner.Id.Value, true, Ct);
+        Assert.True(post.Invisible);
         Assert.Equal(1, _posts.Updates);
     }
 
@@ -180,7 +180,7 @@ public class PostServiceTests
         var forum = Sample.Forum();
         var visible = Sample.Post(author, forum, "Visible");
         var hidden = Sample.Post(author, forum, "Hidden");
-        hidden.HideOrUnhide(true);
+        hidden.ToggleHidden(true);
         _posts.Items[visible.Id.Value] = visible;
         _posts.Items[hidden.Id.Value] = hidden;
 
@@ -196,7 +196,7 @@ public class PostServiceTests
         var id = Guid.NewGuid();
         await Assert.ThrowsAsync<NotFoundException>(() => Service.GetById(id, Ct));
         await Assert.ThrowsAsync<NotFoundException>(() => Service.Update(id, "Text", Guid.NewGuid(), Ct));
-        await Assert.ThrowsAsync<NotFoundException>(() => Service.HideOrUnhide(id, true, Guid.NewGuid(), Ct));
+        await Assert.ThrowsAsync<NotFoundException>(() => Service.HideOrUnhideSelf(id, Guid.NewGuid(), true, Ct));
         await Assert.ThrowsAsync<NotFoundException>(() => Service.Delete(id, Guid.NewGuid(), Ct));
     }
 }

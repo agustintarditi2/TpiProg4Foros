@@ -22,7 +22,7 @@ public class PostTests
         Assert.Equal(Sample.Now, post.DateCreated);
         Assert.Null(post.DateEdited);
         Assert.False(post.Edited);
-        Assert.False(post.Hidden);
+        Assert.False(post.Invisible);
     }
 
     [Fact]
@@ -103,9 +103,9 @@ public class PostTests
     public void Visibility_can_be_hidden_and_restored()
     {
         var post = Sample.Post(Sample.User(), Sample.Forum());
-        post.HideOrUnhide(true);
-        Assert.True(post.Hidden);
-        post.HideOrUnhide(false);
-        Assert.False(post.Hidden);
+        post.ToggleHidden(true);
+        Assert.True(post.Invisible);
+        post.ToggleHidden(false);
+        Assert.False(post.Invisible);
     }
 }
