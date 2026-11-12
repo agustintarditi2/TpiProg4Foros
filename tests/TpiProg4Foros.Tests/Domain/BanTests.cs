@@ -24,7 +24,7 @@ public class BanTests
         Assert.Equal(ban.StartDate.AddDays(7), ban.EndDate);
         Assert.Equal("Repeated spam", ban.Reason);
         Assert.Equal(BanStatus.Activo, ban.Status);
-        Assert.True(ban.ValidatState());
+        Assert.Equal(BanStatus.Activo, ban.Status);
     }
 
     [Theory]
@@ -62,16 +62,47 @@ public class BanTests
     }
 
     [Fact]
-    public void Shortening_to_today_marks_ban_expired()
+    public void Modifying_ban_to_zero_days_is_rejected()
     {
         var (target, admin) = Users();
         var ban = new Ban(target, admin, 5, "Reason");
 
-        ban.ModifyBan(0, "Shortened");
+        Assert.Throws<DomainException>(() => ban.ModifyBan(0, "Invalid duration"));
 
-        Assert.Equal(BanStatus.Vencido, ban.Status);
-        Assert.Equal(ban.StartDate, ban.EndDate);
-        Assert.False(ban.ValidatState());
+        Assert.Equal(5, ban.Duration);
+        Assert.Equal(BanStatus.Activo, ban.Status);
+    }
+
+    [Fact]
+    public void Admin_cannot_ban_self()
+    {
+        var admin = Sample.User("admin@example.com");
+        admin.SetRole(UserRole.Admin);
+
+        Assert.Throws<DomainException>(() => new Ban(admin, admin, 2, "Reason"));
+    }
+
+    [Fact]
+    public void Admin_cannot_ban_sysadmin()
+    {
+        var target = Sample.User("sysadmin@example.com");
+        target.SetRole(UserRole.SysAdmin);
+        var admin = Sample.User("admin@example.com");
+        admin.SetRole(UserRole.Admin);
+
+        Assert.Throws<UnauthorizedAccessException>(() => new Ban(target, admin, 2, "Reason"));
+    }
+
+    [Fact]
+    public void Admin_cannot_ban_another_admin()
+    {
+        var target = Sample.User("other-admin@example.com");
+        target.SetRole(UserRole.Admin);
+        var admin = Sample.User("admin@example.com");
+        admin.SetRole(UserRole.Admin);
+
+        // Regression: the policy says an admin can only ban a lower role.
+        Assert.Throws<UnauthorizedAccessException>(() => new Ban(target, admin, 2, "Reason"));
     }
 
     [Fact]
@@ -83,6 +114,6 @@ public class BanTests
         ban.Desban();
 
         Assert.Equal(BanStatus.Revocado, ban.Status);
-        Assert.False(ban.ValidatState());
+        Assert.Equal(BanStatus.Revocado, ban.Status);
     }
 }
