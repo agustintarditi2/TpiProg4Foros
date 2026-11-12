@@ -9,9 +9,9 @@ using MyApp.Domain.ValueObjects;
 
 namespace TpiProg4Foros.Tests.Support;
 
-// DispatchProxy keeps the tests compatible with both repository contracts:
-// the current develop version (void Update/Delete, no HasActiveBan)
-// and the version being implemented (Task Update/Delete + HasActiveBan).
+// DispatchProxy supports both the older Tests snapshot (void Update/Delete)
+// and newer develop APIs (Task Update/Delete, GetActiveByUserId).
+// HasActiveBan is also recognized for local authentication changes.
 public class BanRepositoryProxy : DispatchProxy
 {
     public Dictionary<Guid, Ban> Items { get; } = [];
