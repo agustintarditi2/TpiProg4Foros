@@ -1,58 +1,57 @@
-# Automated tests (Forum, Post, User, Ban)
+# Automated tests for TpiProg4Foros
 
-This suite tests the existing production behavior without changing `src/`.
+This branch runs the **same production code as `develop`** plus a dedicated .NET 10 xUnit test project. It does not modify `develop`.
 
-## Run locally
+## Run
 
-Requires .NET SDK 10.
+From the repository root with the .NET 10 SDK:
 
 ```bash
 dotnet restore TpiProg4Foros.slnx
-dotnet test TpiProg4Foros.slnx
+dotnet test TpiProg4Foros.slnx --configuration Release
 ```
 
-Run from the repository root. For coverage:
+For coverage:
 
 ```bash
 dotnet test tests/TpiProg4Foros.Tests/TpiProg4Foros.Tests.csproj --collect:"XPlat Code Coverage"
 ```
 
-## Coverage areas
+GitHub Actions: [Automated tests](../../actions/workflows/tests.yml). The workflow restores, builds, tests, and uploads TRX + coverage artifacts on pushes to `Tests` and relevant pull requests.
 
-- **Domain / Forum:** required title/description, trim, 100/500 boundaries, atomic updates, state transitions.
-- **Domain / Post:** forum requirement, body validation/normalization, edit metadata and visibility.
-- **Domain / User:** initial state, names, email/password hash, minimum registration age of 16 (boundary tests), absence of public birth-date editing, role change, anonymizing deactivation.
-- **Application / Forum:** persistence, missing forum, invalid updates, state transitions.
-- **Application / Post:** authenticated author, existing/active forum, existing author, own edit/hide/delete, hidden post filtering.
-- **Application / User:** registration (including age 16 accepted and under 16 rejected without persistence), unique email, own profile updates, SysAdmin-only role changes, soft deletion.
-- **Application / Auth:** login and token validation, inactive account restrictions.
-- **Web:** declared authorization attributes on mutating endpoints (metadata only).
-- **Domain / Ban:** creation, invalid duration/reason, dates, modification, expiration and revocation.
-- **Application / Ban:** creation, missing users/admins, invalid input, duplicate active bans, reading, expiration status refresh, modification, revocation, removal, and access guards.
-- **Application / Auth with Ban:** reject banned users on login and explicit token validation; allow expired and revoked bans.
-- **Application / Post with Ban:** prevent banned authors from creating and editing posts.
-- **Infrastructure / Ban:** GetActiveByUserId query for active-status bans in isolated in-memory SQLite (not the real database).
-- **Web / Ban:** Admin/SysAdmin authorization metadata and JwtBearer `OnTokenValidated` event behavior (without a real HTTP request).
+## Scope
 
-Fakes are per-test in-memory collaborators, not the production SQLite repository.
-The workflow `.github/workflows/tests.yml` runs on pushes to `Tests` and relevant pull requests.
+- **Forum (Domain/Application):** required fields, boundary lengths, atomic updates, active/inactive transitions, persistence and missing-entity responses.
+- **Post (Domain/Application):** required forum and body, text normalization, editing, visibility, author-only modifications, inactive forum restrictions, hidden-item public filtering.
+- **User (Domain/Application):** registration, email and password-hash validation, role permissions, profile updates, deactivation, age boundary, immutable date of birth.
+- **Authentication and authorization:** credentials, JWT claims, inactive accounts, role-based endpoint metadata.
+- **Ban (Domain/Application):** role hierarchy, duration and reason, active ban uniqueness, expiration/revocation, persisted status changes, banned-user restrictions on posts and authentication.
+- **Web:** JwtBearer `OnTokenValidated` event and endpoint authorization metadata.
+- **Infrastructure:** active-ban query using isolated SQLite `Data Source=:memory:`, never the repository's checked-in database.
 
-## Known coverage limits / findings
+The test collaborators use per-test isolated fakes. The JWT event test registers `BanServices` to match its production dependency injection needs.
 
-- Full HTTP integration tests (including deletion cascading to nested comments), HTTP status codes and signed-token authorization are **not** covered. A focused SQLite repository test and JwtBearer event tests are included for bans.
-- **Branch synchronization:** `develop` currently includes new ban rules (role hierarchy, no duplicate active ban, expiration refresh, `IBanRepository.GetActiveByUserId`, and `PostServices` ban guards) that have not been merged into `Tests`. `develop` does **not yet** contain ban checks in `AuthServices` or `AddJwtAuthentication`. Regression tests intentionally expose these gaps; expect red tests until production changes are integrated and the remaining behavior is implemented. This work changed only files inside `tests/`.
-- Test helpers adapt to old/new `AuthServices` and `PostServices` constructors, and old/new `IBanRepository` method signatures, to keep the test project compilable while the branches are synchronized.
-- Ban authorization tests inspect `[Authorize]` metadata only; they do not assert actual HTTP 401/403 responses.
-- JWT event tests call the registered validation event directly; they do not perform real signed-JWT HTTP integration.
-- `BanRepositoryTests` use an ephemeral SQLite database via `Data Source=:memory:`.
-- Current `develop` permits an Admin to ban another Admin despite the comment requiring a lower target role. `BanTests.Admin_cannot_ban_another_admin` is a deliberate failing regression until that authorization rule is corrected.
-- Post's domain constructor does not explicitly reject an empty `Poster` ID; the application service does reject an empty authenticated ID.
-- **Age and birth-date regression:** `Tests` still has the earlier production `User.cs` (without minimum age and with `ChangeDateOfBirth`). New tests expect the agreed changes from `IntegrarForum`: registration permitted at 16, rejected before 16, and no public birth-date change method. Those cases will fail until the updated production code is merged into this branch.
-- `UserServices.ChangeEmail` checks duplicate existence without exempting the current account. Re-submitting the same email may be rejected.
-- `PostServices.Create` verifies an author exists but does not check `IsActive` on that user; authentication and other request-handling layers must enforce account status.
+## Latest verified run — 2026-11-12
 
-These are observations rather than behavior silently 'fixed' by tests. Existing production code is left unchanged.
+[GitHub Actions run 43314944851](../../actions/runs/43314944851):
 
-## Test status
+- Build: **passed**.
+- Tests: **155 passed, 2 failed, 0 skipped (157 total)**.
 
-The commit was written through the GitHub connector. The authoring environment did not contain the .NET SDK, so compilation and passing test results must be verified by GitHub Actions or locally. Never treat unexecuted tests as passing.
+The two failing tests demonstrate defects in production. **Do not make these tests pass by weakening the assertions or by changing `src/` on the `Tests` branch.** Fix production in a normal feature/fix branch, merge it into `develop`, and resynchronize `Tests`.
+
+1. **`BanTests.Admin_cannot_ban_another_admin`:** in `src/Domain/Entities/Ban.cs`, the current condition `user.Role > admin.Role` allows same-role bans, although the documented business rule requires the target to have a strictly lower role. Review whether to reject `>=` (plus any special SysAdmin policy).
+2. **`BanRepositoryTests.Query_returns_active_bans_only_for_requested_user`:** the SQLite/EF Core model fails to initialize. `CommentConfiguration` maps `Comment.Invisible`, but `Invisible` in `TextEntity` is a computed read-only property with no backing field. `PostConfiguration` maps the same property, so it also needs review. The test currently cannot reach the actual ban query until mapping is fixed.
+
+## Business rule to confirm
+
+The current `develop` version of `User.cs` requires **16 years** for registration. This is what the tests assert because the test branch must match production. A previous discussion specified **13 years**. Do not change the assertions to 13 without an approved production rule change.
+
+## Coverage limitations and precautions
+
+- Endpoint metadata and the JWT event are tested; there is **no complete HTTP integration test with a signed JWT and real 401/403 responses**.
+- Full delete-cascade scenarios for deeply nested comments are not covered.
+- The `BanRepositoryTests` SQLite test cannot validate its query until the EF mapping error above is resolved.
+- A passing mock-based test does not guarantee database migrations and real HTTP requests work.
+- `UserServices.ChangeEmail` may reject the user's existing email if the submitted casing differs; this is not covered by the current suite.
+- A new commit on `develop` does not automatically update `Tests`; merge/synchronize `develop` again to avoid running tests against stale production code.
