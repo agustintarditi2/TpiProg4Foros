@@ -26,7 +26,7 @@ public sealed class PostServices{
     public async Task<PostDTO> GetById(Guid id, CancellationToken ct)
     {
         var entity = await _repository.GetById((PostId)id, ct);
-        if (entity is null || entity.Hidden)
+        if (entity is null || entity.Invisible)
             throw new NotFoundException("Requested post not found");
         return PostDTO.Create(entity);
     }
@@ -36,7 +36,7 @@ public sealed class PostServices{
         var entities = await _repository.GetByForum((ForumId)id, ct);
         return entities
             // incluye los posts cuyo hidden sea false
-            .Where(p => !p.Hidden)
+            .Where(p => !p.Invisible)
             .Select(PostDTO.Create)
             .ToList();   
     }   
@@ -45,7 +45,7 @@ public sealed class PostServices{
     {
         var entities = await _repository.GetByPoster((UserId)id, ct);
         return entities
-        .Where(p => !p.Hidden)
+        .Where(p => !p.Invisible)
         .Select(PostDTO.Create)
         .ToList();
     }
