@@ -26,14 +26,13 @@ namespace MyApp.Domain.Entities
         private Ban() { Reason = null!; }
 
         public Ban(User user, User admin, int days, string reason)
-        {
-
+        {     
             if (user.Id == admin.Id)
                 throw new DomainException("You cannot ban yourself."); //lo que dice el mensaje de error
 
             // Solo se puede banear a alguien con rol menor al propio.
             // Depende del orden del enum UserRole: User < Admin < SysAdmin.
-            if (user.Role > admin.Role)
+            if (user.Role >= admin.Role)
                 throw new UnauthorizedAccessException("You can only ban users with a lower role than yours.");
 
             if (days <= 0)
