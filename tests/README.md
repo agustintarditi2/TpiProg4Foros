@@ -21,10 +21,10 @@ dotnet test tests/TpiProg4Foros.Tests/TpiProg4Foros.Tests.csproj --collect:"XPla
 
 - **Domain / Forum:** required title/description, trim, 100/500 boundaries, atomic updates, state transitions.
 - **Domain / Post:** forum requirement, body validation/normalization, edit metadata and visibility.
-- **Domain / User:** initial state, names, email/password hash, birth date, role change, anonymizing deactivation.
+- **Domain / User:** initial state, names, email/password hash, minimum registration age of 16 (boundary tests), absence of public birth-date editing, role change, anonymizing deactivation.
 - **Application / Forum:** persistence, missing forum, invalid updates, state transitions.
 - **Application / Post:** authenticated author, existing/active forum, existing author, own edit/hide/delete, hidden post filtering.
-- **Application / User:** registration, unique email, own profile updates, SysAdmin-only role changes, soft deletion.
+- **Application / User:** registration (including age 16 accepted and under 16 rejected without persistence), unique email, own profile updates, SysAdmin-only role changes, soft deletion.
 - **Application / Auth:** login and token validation, inactive account restrictions.
 - **Web:** declared authorization attributes on mutating endpoints (metadata only).
 - **Domain / Ban:** creation, invalid duration/reason, dates, modification, expiration and revocation.
@@ -47,7 +47,7 @@ The workflow `.github/workflows/tests.yml` runs on pushes to `Tests` and relevan
 - `BanRepositoryTests` use an ephemeral SQLite database via `Data Source=:memory:`.
 - Current `develop` permits an Admin to ban another Admin despite the comment requiring a lower target role. `BanTests.Admin_cannot_ban_another_admin` is a deliberate failing regression until that authorization rule is corrected.
 - Post's domain constructor does not explicitly reject an empty `Poster` ID; the application service does reject an empty authenticated ID.
-- User's constructor currently does not check the maximum age, while `ChangeDateOfBirth` does.
+- **Age and birth-date regression:** `Tests` still has the earlier production `User.cs` (without minimum age and with `ChangeDateOfBirth`). New tests expect the agreed changes from `IntegrarForum`: registration permitted at 16, rejected before 16, and no public birth-date change method. Those cases will fail until the updated production code is merged into this branch.
 - `UserServices.ChangeEmail` checks duplicate existence without exempting the current account. Re-submitting the same email may be rejected.
 - `PostServices.Create` verifies an author exists but does not check `IsActive` on that user; authentication and other request-handling layers must enforce account status.
 
