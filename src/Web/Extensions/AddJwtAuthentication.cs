@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MyApp.Application.Interfaces;
 using MyApp.Domain.ValueObjects;
+using MyApp.Application.Services;
 
 namespace MyApp.Web.Extensions;
 
@@ -73,6 +74,21 @@ public static class AuthenticationExtensions
                         if (!context.Principal!.IsInRole(user.Role.ToString()))
                         {
                             context.Fail("User role has changed.");
+                            return;
+                        }
+                        // Obtiene el servicio que verifica los bans
+                        var banServices = context.HttpContext.RequestServices
+                            .GetRequiredService<BanServices>();
+
+                        try
+                        {
+                            await banServices.EnsureNotBanned(
+                                user.Id.Value,
+                                context.HttpContext.RequestAborted);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            context.Fail("User account is banned.");
                             return;
                         }
                     }

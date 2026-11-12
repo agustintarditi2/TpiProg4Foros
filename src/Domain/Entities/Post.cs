@@ -21,6 +21,5 @@ public sealed class Post : TextEntity
         DateCreated = dateCreated;
         DateEdited = null;
         Edited = false;
-        Hidden = false;
     }
 }
