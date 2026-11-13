@@ -72,7 +72,9 @@ const EditBan = ({ ban, onClose, onUpdated }) => {
         <div>
             <Card className="p-4 shadow bg-success text-light">
                 <Card.Body>
-                    <h2 className="text-center mb-4">Estas modificando el baneo de {ban.bannedUser?.name}</h2>
+                    <h2 className="text-center mb-4">
+                        Estas modificando el baneo del usuario {ban.userId}
+                    </h2>
                     <h2 className="text-center mb-4">Ban Nº:{ban.id}</h2>
                     {error && (
                         <Alert variant="danger">
@@ -100,15 +102,15 @@ const EditBan = ({ ban, onClose, onUpdated }) => {
                         <FormGroup className="mb-3">
                             <Form.Label>Duracion</Form.Label>
                             <br />
-                            {ban.status === "activo"? (
-                            <Form.Control
-                                type="number"
-                                name="duration"
-                                value={formData.duration}
-                                onChange={handleChange}
-                                required
-                                min="1"
-                            />): (<span className="text-muted me-2"> Ban inactivo</span>)}
+                            {ban.status === "activo" ? (
+                                <Form.Control
+                                    type="number"
+                                    name="duration"
+                                    value={formData.duration}
+                                    onChange={handleChange}
+                                    required
+                                    min="1"
+                                />) : (<span className="text-muted me-2"> Ban inactivo</span>)}
                         </FormGroup>
                         <Row>
                             <Col md={6}>

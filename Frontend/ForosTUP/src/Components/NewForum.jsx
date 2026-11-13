@@ -45,7 +45,7 @@ const NewForum = () => {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:5073/forums", {
+      const response = await fetch("http://localhost:5073/Forum", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

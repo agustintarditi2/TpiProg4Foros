@@ -1,0 +1,59 @@
+
+.profile-card {
+    background-color: #064420;
+    border: none;
+    color: white;
+    border-radius: 12px;
+}
+
+.profile-subtitle {
+    color: #c5d8ca;
+}
+
+.profile-label {
+    font-weight: 600;
+    color: white;
+}
+
+.profile-value {
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    color: white;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+}
+
+.profile-card .form-control {
+    min-height: 42px;
+}
+
+.profile-divider {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.birthdate-info {
+    padding: 0.8rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.birthdate-label {
+    display: block;
+    color: #c5d8ca;
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+}
+
+.birthdate-value {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.creatdate-value {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    margin: 0;
+}

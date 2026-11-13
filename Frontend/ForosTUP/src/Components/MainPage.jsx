@@ -3,7 +3,7 @@ import Forums from "./Forums.jsx";
 import { useFetchFromAPI } from "../Services/fetch/UseFetchFromAPI.jsx";
 
 const MainPage = () => {
-  const { data: forums, loading, error } = useFetchFromAPI("/forums", []);
+  const { data: forums, loading, error } = useFetchFromAPI("/Forums", []);
 
   if (loading) return <p>Cargando foros...</p>;
   if (error) return <p>Error: {error}</p>;

@@ -186,7 +186,7 @@ const NewBan = () => {
                 value={
                   user?.id
                     ? `${user?.name || "Admin"} (ID: ${user.id})`
-                    : "Administrador logueado"
+                    : "Administrador no logueado"
                 }
                 readOnly
               />

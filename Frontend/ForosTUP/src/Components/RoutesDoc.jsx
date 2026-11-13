@@ -21,6 +21,7 @@ import Bans from "./Bans.jsx";
 import NewBans from "./NewBans.jsx";
 import UserEdit from "./UserEdit.jsx";
 import ProtectedOnlyAdmin from "./ProtectedOnlyAdmin.jsx";
+import UserProfile from "./UserProfile.jsx";
 
 const RoutesDoc = () => {
   return (
@@ -33,6 +34,10 @@ const RoutesDoc = () => {
           <Route path="/" element={<MainPage />} />
           <Route path="/main" element={<MainPage />} />
           <Route path="/home" element={<MainPage />} />
+          {/*Rutas de componentes hechos para mostrar y que hay que cambiarlos mas adelante*/}
+          <Route path="/user/profile" element={<UserProfile />} /> {/*Ruta de la pagina de perfil de usuario*/}
+
+          <Route path="/newban" element={<NewBans />} />
 
           <Route element={<PublicOnly />}>
             <Route path="/login" element={<LogIn />} />
@@ -46,12 +51,12 @@ const RoutesDoc = () => {
           {/* Rutas protegidas: solo usuarios logueados pueden entrar */}
           <Route element={<Protected />}>
             <Route path="/user/edit" element={<UserEdit />} />
-            <Route path="/forums/:forumId/posts/new" element={<NewPost />} />
+            <Route path="/Forum/:forumId/posts/new" element={<NewPost />} />
             
             {/* Rutas de Admin: solo ADMIN y SYSADMIN pueden acceder. */}
             <Route element={<ProtectedOnlyAdmin />}>
               <Route path="/bans" element={<Bans />} />
-              <Route path="/newban" element={<NewBans />} />
+              {/*<Route path="/newban" element={<NewBans />} /> */}
               {/* /users queda pendiente: UserList no existe en el proyecto original. */}
               <Route path="/newforum" element={<NewForum />} />
             </Route>

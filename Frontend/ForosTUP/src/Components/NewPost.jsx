@@ -77,7 +77,7 @@ const NewPost = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5073/forums/${forumId}/posts`,
+        `http://localhost:5073/Forum/${forumId}/Post`,
         {
           method: "POST",
           headers: {

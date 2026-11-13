@@ -37,14 +37,14 @@ const ForumPage = () => {
     loading: loadingForum,
     error: errorForum,
     refetch: fetchForums,
-  } = useFetchFromAPI(`/forums/${forumId}`, null);
+  } = useFetchFromAPI(`/Forum/${forumId}`, null);
 
   // trae los posts del foro desde el backend
   const {
     data: posts,
     loading: loadingPosts,
     error: errorPosts,
-  } = useFetchFromAPI(`/forums/${forumId}/posts`, []);
+  } = useFetchFromAPI(`/Forum/${forumId}/posts`, []);
 
   // asegura que sea un array
   const forumPosts = Array.isArray(posts) ? posts : [];
@@ -68,7 +68,7 @@ const ForumPage = () => {
 
   // maneja el "crear publicacion", si esta loggeado lo lleva al form
   const handleNewPost = () => {
-    requireAuth(() => navigate(`/forums/${forumId}/posts/new`));
+    requireAuth(() => navigate(`/Forum/${forumId}/posts/new`));
   };
 
   // maneja el click sobre un post
@@ -123,7 +123,7 @@ const ForumPage = () => {
     if (editedName !== "") newForum.name = editedName || "";
     if (editedRules !== "") newForum.rules = editedRules || "";
     if (editedDesc !== "") newForum.desc = editedDesc || ""
-    const res = await fetch(`http://localhost:5073/forums/${forumId}`, {
+    const res = await fetch(`http://localhost:5073/Forum/${forumId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

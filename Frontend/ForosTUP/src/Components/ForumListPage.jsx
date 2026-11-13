@@ -10,7 +10,7 @@ const ForumListPage = () => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
 
-  const { data: forums, loading, error } = useFetchFromAPI("/forums", []);
+  const { data: forums, loading, error } = useFetchFromAPI("/Forum", []);
   const [search, setSearch] = useState("");
 
   const filteredForums = (forums || []).filter((forum) => {
