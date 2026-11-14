@@ -43,8 +43,8 @@ public sealed class GlobalExceptionHandlingMiddleware : IMiddleware
 
             await WriteProblemAsync(context, StatusCodes.Status401Unauthorized,
                 "Unauthorized", ex.Message);
-         }
-        
+        }
+
         catch (UnauthorizedAccessException ex)
         {
             _logger.LogWarning(ex, "Access denied");
@@ -55,6 +55,16 @@ public sealed class GlobalExceptionHandlingMiddleware : IMiddleware
                 "Forbidden",
                 ex.Message);
         }
+
+        catch (ExternalServiceException ex)
+        {
+            _logger.LogWarning("External service failure for {Method} {Path}: {Message}",
+                context.Request.Method, context.Request.Path, ex.Message);
+
+            await WriteProblemAsync(context, StatusCodes.Status502BadGateway,
+                "Bad Gateway", "A service this API depends on is not responding. Please try again later.");
+        }
+
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception for {Method} {Path}",

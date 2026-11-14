@@ -12,6 +12,7 @@ public static class DependencyInjection
         services.AddScoped<BanServices>();
         services.AddScoped<ForumServices>();
         services.AddScoped<AuthServices>();
+        services.AddScoped<TimeServices>();
         // register other handlers here as you add them
 
         return services;
