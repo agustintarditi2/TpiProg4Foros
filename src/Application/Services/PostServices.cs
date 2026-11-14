@@ -26,7 +26,7 @@ public sealed class PostServices{
     public async Task<PostDTO> GetById(Guid id, CancellationToken ct)
     {
         var entity = await _repository.GetById((PostId)id, ct);
-        if (entity is null)
+        if (entity is null || entity.Invisible)
             throw new NotFoundException("Requested post not found");
         return PostDTO.Create(entity);
     }
@@ -34,13 +34,29 @@ public sealed class PostServices{
     public async Task<List<PostDTO>> GetByForum(Guid id, CancellationToken ct)
     {
         var entities = await _repository.GetByForum((ForumId)id, ct);
-        return entities.Select(PostDTO.Create).ToList();
-    }
+        return entities
+            // incluye los posts cuyo hidden sea false
+            .Where(p => !p.Invisible)
+            .Select(PostDTO.Create)
+            .ToList();   
+    }   
 
     public async Task<List<PostDTO>> GetByPoster(Guid id, CancellationToken ct)
     {
         var entities = await _repository.GetByPoster((UserId)id, ct);
-        return entities.Select(PostDTO.Create).ToList();
+        return entities
+        .Where(p => !p.Invisible)
+        .Select(PostDTO.Create)
+        .ToList();
+    }
+    
+    public async Task<List<PostDTO>> GetMyPosts(Guid userId, CancellationToken ct)
+    {
+        var entities = await _repository.GetByPoster((UserId)userId, ct);
+
+        return entities
+            .Select(PostDTO.Create)
+            .ToList();
     }
 
     public async Task<PostDTO> Create(CreatePostDTO dto, Guid userId, CancellationToken ct)
@@ -59,6 +75,10 @@ public sealed class PostServices{
         var forum = await _forumRepository.GetById(entity.ForumId, ct);
         if (forum is null)
             throw new NotFoundException("Requested forum not found");
+
+        if (!forum.State)
+            throw new DomainException(
+            "Cannot create posts in an inactive forum.");
 
           // verifica que el autor exista
         var user = await _userRepository.GetById(entity.Poster, ct);
@@ -80,16 +100,36 @@ public sealed class PostServices{
         if (entity.Poster != (UserId)userId)
             throw new UnauthorizedAccessException(
             "You can only edit your own posts.");
+
+        var forum = await _forumRepository.GetById(entity.ForumId, ct);
+        
+        if (forum is null)
+            throw new NotFoundException("Requested forum not found");
+        if (!forum.State)
+            throw new DomainException(
+            "Cannot edit posts in an inactive forum.");
         body = _sanitizer.Sanitize(body);
         entity.EditBody(body, _clock.UtcNow);
         await _repository.Update(entity, ct);
     }
 
-    public async Task HideOrUnhide(Guid id, bool value, CancellationToken ct)
+    public async Task Suppress(Guid id, bool value, CancellationToken ct)
     {
         var entity = await _repository.GetById((PostId)id, ct);
         if (entity is null) throw new NotFoundException("Requested post not found");
-        entity.HideOrUnhide(value);
+        entity.ToggleSuppressed(value);
+        await _repository.Update(entity, ct);
+    }
+
+    public async Task HideOrUnhideSelf(Guid id, Guid userId, bool value, CancellationToken ct)
+    {
+        var entity = await _repository.GetById((PostId)id, ct);
+        if (entity is null) throw new NotFoundException("Requested post not found");
+        // verifica que el usuario sea el autor
+        if (entity.Poster != (UserId)userId)
+            throw new UnauthorizedAccessException(
+            "You can change the visibility of your own posts.");
+        entity.ToggleHidden(value);
         await _repository.Update(entity, ct);
     }
 

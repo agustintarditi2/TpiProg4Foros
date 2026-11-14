@@ -74,8 +74,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Edited")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("Hidden")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("HiddenByUser")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Hidden");
 
                     b.Property<Guid>("ParentPost")
                         .HasColumnType("TEXT");
@@ -85,6 +86,11 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid?>("RepliedComment")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("SuppressedByAdmin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.HasKey("Id");
 
@@ -141,11 +147,17 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("ForumId")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Hidden")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("HiddenByUser")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Hidden");
 
                     b.Property<Guid>("Poster")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("SuppressedByAdmin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.HasKey("Id");
 

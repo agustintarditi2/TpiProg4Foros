@@ -35,7 +35,7 @@ public class PostController : ControllerBase
     }
 
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
 
     public async Task<ActionResult<PostDTO>> GetById([FromRoute] Guid id, CancellationToken ct)
     {
@@ -68,14 +68,34 @@ public class PostController : ControllerBase
         return NoContent();
     }
     
+    [Authorize(Roles = "SysAdmin, Admin")]
+    [HttpPatch("{id:guid}/suppress")]
+
+    public async Task<ActionResult> SuppressPost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
+    {
+        await _services.Suppress(id, hidden, ct);
+        return NoContent();
+    }
+    
     [Authorize]
-    [HttpPatch("{id:guid}/visibility")]
+    [HttpPatch("{id:guid}/visible")]
 
     public async Task<ActionResult> HideOrUnhidePost([FromRoute] Guid id, [FromBody] bool hidden, CancellationToken ct)
     {
-        await _services.HideOrUnhide(id, hidden, ct);
+        Guid userId = User.GetAuthenticatedUserId();
+        await _services.HideOrUnhideSelf(id, userId, hidden, ct);
         return NoContent();
     }
+
+    [Authorize]
+    [HttpGet("mine")]
+    public async Task<ActionResult<List<PostDTO>>> GetMyPosts(CancellationToken ct)
+        {
+            Guid userId = User.GetAuthenticatedUserId();
+            var posts = await _services.GetMyPosts(userId, ct);
+            return Ok(posts);
+        }
+
     [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
