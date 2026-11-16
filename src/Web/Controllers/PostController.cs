@@ -15,10 +15,12 @@ public class PostController : ControllerBase
     
 
     private readonly PostServices _services;
+    private readonly ReactionServices _reactionServices;
 
-    public PostController(PostServices postServices)
+    public PostController(PostServices postServices, ReactionServices reactionServices)
     {
         _services = postServices;
+        _reactionServices = reactionServices;
     }
 
     [HttpGet]
@@ -102,6 +104,25 @@ public class PostController : ControllerBase
     {
         Guid userId = User.GetAuthenticatedUserId();
         await _services.Delete(id,userId, ct);
+        return NoContent();
+    }
+    [Authorize]
+    [HttpPut("{id:guid}/reaction")]
+    public async Task<IActionResult> SetPostReaction([FromRoute] Guid id, [FromBody] bool isLike, CancellationToken ct)
+    {
+        // obtiene el usuario autenticado
+        Guid userId = User.GetAuthenticatedUserId();
+        await _reactionServices.SetPostReaction(id, userId, isLike, ct);
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("{id:guid}/reaction")]
+    public async Task<IActionResult> RemovePostReaction([FromRoute] Guid id, CancellationToken ct)
+    {
+        // obtiene el usuario autenticado
+        Guid userId = User.GetAuthenticatedUserId();
+        await _reactionServices.RemovePostReaction(id, userId, ct);
         return NoContent();
     }
 }
