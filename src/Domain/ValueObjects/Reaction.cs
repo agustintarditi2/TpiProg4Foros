@@ -6,7 +6,7 @@ public record Reaction
     public PostId? Post {get; init;}
     public CommentId? Comment {get; init;}
     public UserId User {get; init;}
-    public bool Type {get; init;}
+    public bool Type {get; private set;}
 
     private Reaction(){}
 
@@ -23,5 +23,9 @@ public record Reaction
         Comment = comment;
         User = user;
         Type = type;
+    }
+    public void ChangeType(bool isLike)
+    {
+        Type = isLike;
     }
 }
