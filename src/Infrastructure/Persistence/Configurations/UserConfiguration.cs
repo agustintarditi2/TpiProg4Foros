@@ -64,7 +64,15 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
             rb.Property(r => r.Type).IsRequired();
 
-            rb.HasIndex(r => new { r.User, r.Post, r.Comment });
+            // evita reacciones duplicadas sobre publicaciones
+            rb.HasIndex(r => new { r.User, r.Post })
+                .IsUnique()
+                .HasFilter("\"Post\" IS NOT NULL");
+
+            // evita reacciones duplicadas sobre comentarios
+            rb.HasIndex(r => new { r.User, r.Comment })
+                .IsUnique()
+                .HasFilter("\"Comment\" IS NOT NULL");
         });
     }
 }
