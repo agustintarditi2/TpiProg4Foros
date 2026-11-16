@@ -1,5 +1,10 @@
 using MyApp.Domain.ValueObjects;
 using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -291,4 +296,57 @@ public sealed class ApiAuthenticationHttpTests
             Assert.Empty(user.Reactions!);
         }
     }
+    private static string CreateSignedTestToken(
+        ApiTestFactory factory, Guid userId, DateTime issuedUtc, DateTime expiresUtc,
+        bool wrongSignature)
+    {
+        var config = factory.Services.GetRequiredService<IConfiguration>();
+        var signingKey = wrongSignature
+            ? Encoding.UTF8.GetBytes(new string('X', 64))
+            : Encoding.UTF8.GetBytes(config["Authentication:SecretForKey"]!);
+        var token = new JwtSecurityToken(
+            issuer: config["Authentication:Issuer"],
+            audience: config["Authentication:Audience"],
+            claims:
+            [
+                new Claim("user", userId.ToString()),
+                new Claim("role", "User")
+            ],
+            notBefore: issuedUtc,
+            expires: expiresUtc,
+            signingCredentials: new SigningCredentials(
+                new SymmetricSecurityKey(signingKey), SecurityAlgorithms.HmacSha256));
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    [Fact]
+    public async Task Token_with_invalid_signature_is_401()
+    {
+        using var factory = new ApiTestFactory();
+        var seed = await factory.SeedAsync();
+        using var client = factory.CreateHttpsClient();
+        SetBearer(client, CreateSignedTestToken(factory, seed.UserId,
+            DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(30),
+            wrongSignature: true));
+
+        using var response = await client.PostAsJsonAsync("/Post",
+            new { Forum = seed.ForumId, Body = "Token signed with an unknown key" });
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Expired_but_correctly_signed_token_is_401()
+    {
+        using var factory = new ApiTestFactory();
+        var seed = await factory.SeedAsync();
+        using var client = factory.CreateHttpsClient();
+        SetBearer(client, CreateSignedTestToken(factory, seed.UserId,
+            DateTime.UtcNow.AddHours(-3), DateTime.UtcNow.AddHours(-1),
+            wrongSignature: false));
+
+        using var response = await client.PostAsJsonAsync("/Post",
+            new { Forum = seed.ForumId, Body = "Expired signed token" });
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
 }
