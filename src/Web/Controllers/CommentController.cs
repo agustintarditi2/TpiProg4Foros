@@ -15,10 +15,12 @@ public class CommentController : ControllerBase
     
 
     private readonly CommentServices _services;
+    private readonly ReactionServices _reactionServices;
 
-    public CommentController(CommentServices commentServices)
+    public CommentController(CommentServices commentServices, ReactionServices reactionServices)
     {
         _services = commentServices;
+        _reactionServices = reactionServices;
     }
 
     [HttpGet]
@@ -99,6 +101,25 @@ public class CommentController : ControllerBase
     {
         Guid userId = User.GetAuthenticatedUserId();
         await _services.Delete(id,userId, ct);
+        return NoContent();
+    }
+    [Authorize]
+    [HttpPut("{id:guid}/reaction")]
+    public async Task<IActionResult> SetCommentReaction([FromRoute] Guid id, [FromBody] bool isLike, CancellationToken ct)
+    {
+        // obtiene el usuario autenticado
+        Guid userId = User.GetAuthenticatedUserId();
+        await _reactionServices.SetCommentReaction(id, userId, isLike, ct);
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("{id:guid}/reaction")]
+    public async Task<IActionResult> RemoveCommentReaction([FromRoute] Guid id, CancellationToken ct)
+    {
+        // obtiene el usuario autenticado
+        Guid userId = User.GetAuthenticatedUserId();
+        await _reactionServices.RemoveCommentReaction(id, userId, ct);
         return NoContent();
     }
 }
