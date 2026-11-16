@@ -24,9 +24,11 @@ public sealed class ApiAuthenticationHttpTests
         using var response = await client.PostAsJsonAsync("/api/auth/login",
             new { Email = email, PlainPassword = ApiTestFactory.TestPassword });
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var token = await response.Content.ReadFromJsonAsync<string>();
+        // AuthController returns Ok(string), which ASP.NET Core formats as text/plain.
+        var token = (await response.Content.ReadAsStringAsync()).Trim();
         Assert.False(string.IsNullOrWhiteSpace(token));
-        return token!;
+        Assert.Equal(3, token.Split('.').Length); // signed JWT, not a fake authentication stub
+        return token;
     }
 
     [Fact]
