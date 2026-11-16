@@ -13,10 +13,12 @@ public sealed class CommentServices{
     private readonly ISanitizer _sanitizer;
     private readonly IUserRepository _userRepository;
     private readonly IPostRepository _postRepository;
-    public CommentServices(ICommentRepository commentRepository, IPostRepository postRepository,IUserRepository userRepository, IClock clock, ISanitizer sanitizer){
+    private readonly IForumRepository _forumRepository;
+    public CommentServices(ICommentRepository commentRepository, IPostRepository postRepository, IUserRepository userRepository, IForumRepository forumRepository, IClock clock, ISanitizer sanitizer){
         _sanitizer = sanitizer;
         _repository = commentRepository;
         _postRepository = postRepository;
+        _forumRepository = forumRepository;
         _userRepository = userRepository;
         _clock = clock;
     }
@@ -54,7 +56,14 @@ public sealed class CommentServices{
         // Rescatamos el post padre
         Post? parent = await _postRepository.GetById((PostId)dto.ParentPost, ct);
         if (parent is null)
-            throw new NotFoundException("Parent comment not found.");
+            throw new NotFoundException("Parent post not found.");
+        if (parent.Invisible)
+            throw new DomainException("Cannot comment on a hidden or suppressed post.");
+        var forum = await _forumRepository.GetById(parent.ForumId, ct);
+        if (forum is null)
+            throw new NotFoundException("Requested forum not found.");
+        if (!forum.State)
+            throw new DomainException("Cannot comment in an inactive forum.");
         // Rescatamos el usuario autor
         var user = await _userRepository.GetById((UserId)userId, ct);
         if (user is null)
@@ -66,6 +75,8 @@ public sealed class CommentServices{
             repliedComment = await _repository.GetById((CommentId)dto.RepliedComment, ct);
             if (repliedComment is null)
                 throw new NotFoundException("Requested comment not found");
+            if (repliedComment.Invisible)
+                throw new DomainException("Cannot reply to a hidden or suppressed comment.");
         }
         
         var entity = new Comment(
@@ -85,10 +96,25 @@ public sealed class CommentServices{
         var entity = await _repository.GetById((CommentId)id, ct);
         if (entity is null)
             throw new NotFoundException("Requested comment not found");
+        // verifica que el comentario no este eliminado
+        if (entity.IsDeleted)
+            throw new DomainException("Cannot edit a deleted comment.");
         // verifica que el usuario sea el autor
         if (entity.Poster != (UserId)userId)
             throw new UnauthorizedAccessException(
             "You can only edit your own comments.");
+        if (entity.SuppressedByAdmin)
+            throw new DomainException("Cannot edit a suppressed comment.");
+        var post = await _postRepository.GetById(entity.ParentPost, ct);
+        if (post is null)
+            throw new NotFoundException("Parent post not found.");
+        if (post.Invisible)
+            throw new DomainException("Cannot edit comments on a hidden post.");
+        var forum = await _forumRepository.GetById(post.ForumId, ct);
+        if (forum is null)
+            throw new NotFoundException("Requested forum not found.");
+        if (!forum.State)
+            throw new DomainException("Cannot edit comments in an inactive forum.");
         body = _sanitizer.Sanitize(body);
         entity.EditBody(body, _clock.UtcNow);
         await _repository.Update(entity, ct);
@@ -121,7 +147,7 @@ public sealed class CommentServices{
         if (entity.Poster != (UserId)userId)
             throw new UnauthorizedAccessException(
             "You can only delete your own comments.");
-        entity.Delete();
+        entity.MarkAsDeleted();
         await _repository.Update(entity, ct);
     }
 
