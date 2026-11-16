@@ -64,6 +64,10 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
             rb.Property(r => r.Type).IsRequired();
 
+            // usa una clave autoincremental compatible con sqlite
+            rb.HasKey("Id");
+            rb.HasIndex("UserId");
+
             // evita reacciones duplicadas sobre publicaciones
             rb.HasIndex(r => new { r.User, r.Post })
                 .IsUnique()
