@@ -1,3 +1,4 @@
+using MyApp.Domain.ValueObjects;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -191,7 +192,7 @@ public sealed class ApiAuthenticationHttpTests
         var token = await LoginAsync(client, "http-user@example.invalid");
 
         await factory.ModifyDbAsync(db =>
-            db.Users.Single(u => u.Id.Value == seed.UserId)
+            db.Users.Single(u => u.Id == (UserId)seed.UserId)
                 .DeactivateAccount("disabled-account-hash"));
 
         SetBearer(client, token);
@@ -209,7 +210,7 @@ public sealed class ApiAuthenticationHttpTests
         var token = await LoginAsync(client, "http-admin@example.invalid");
 
         await factory.ModifyDbAsync(db =>
-            db.Users.Single(u => u.Id.Value == seed.AdminId).SetRole(UserRole.User));
+            db.Users.Single(u => u.Id == (UserId)seed.AdminId).SetRole(UserRole.User));
 
         SetBearer(client, token);
         using var response = await client.PatchAsJsonAsync($"/Post/{seed.PostId}/suppress", true);
@@ -226,8 +227,8 @@ public sealed class ApiAuthenticationHttpTests
 
         await factory.ModifyDbAsync(db =>
         {
-            var user = db.Users.Single(u => u.Id.Value == seed.UserId);
-            var admin = db.Users.Single(u => u.Id.Value == seed.AdminId);
+            var user = db.Users.Single(u => u.Id == (UserId)seed.UserId);
+            var admin = db.Users.Single(u => u.Id == (UserId)seed.AdminId);
             db.Bans.Add(new Ban(user, admin, 5, "HTTP integration test ban"));
         });
 
@@ -274,7 +275,7 @@ public sealed class ApiAuthenticationHttpTests
         {
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var user = await db.Users.Include(u => u.Reactions)
-                .SingleAsync(u => u.Id.Value == seed.UserId);
+                .SingleAsync(u => u.Id == (UserId)seed.UserId);
             Assert.Single(user.Reactions!);
             Assert.Equal(seed.PostId, user.Reactions![0].Post!.Value.Value);
         }
@@ -286,7 +287,7 @@ public sealed class ApiAuthenticationHttpTests
         {
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var user = await db.Users.Include(u => u.Reactions)
-                .SingleAsync(u => u.Id.Value == seed.UserId);
+                .SingleAsync(u => u.Id == (UserId)seed.UserId);
             Assert.Empty(user.Reactions!);
         }
     }
