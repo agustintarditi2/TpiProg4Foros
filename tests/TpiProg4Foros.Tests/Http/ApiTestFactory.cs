@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
@@ -54,6 +57,19 @@ internal sealed class ApiTestFactory : WebApplicationFactory<PostController>
             services.RemoveAll<DbContextOptions>();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(_connection));
+
+            // Minimal hosting can configure JwtBearer before this factory's
+            // app configuration provider is added. Pin the validation *parameters*
+            // to the same isolated key/issuer/audience that JwtServices uses.
+            // Keep the production OnTokenValidated event and all access checks.
+            services.PostConfigure<JwtBearerOptions>(
+                JwtBearerDefaults.AuthenticationScheme, options =>
+                {
+                    options.TokenValidationParameters.ValidIssuer = JwtTestIssuer;
+                    options.TokenValidationParameters.ValidAudience = JwtTestAudience;
+                    options.TokenValidationParameters.IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtTestKey));
+                });
         });
     }
 
