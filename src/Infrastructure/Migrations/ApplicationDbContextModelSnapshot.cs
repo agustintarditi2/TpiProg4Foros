@@ -275,7 +275,8 @@ namespace Infrastructure.Migrations
 
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("INTEGER")
+                                .HasAnnotation("Sqlite:Autoincrement", true);
 
                             b1.Property<Guid?>("Comment")
                                 .HasColumnType("TEXT");
@@ -289,7 +290,9 @@ namespace Infrastructure.Migrations
                             b1.Property<Guid>("User")
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("UserId", "Id");
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("UserId");
 
                             b1.HasIndex("User", "Comment")
                                 .IsUnique()
