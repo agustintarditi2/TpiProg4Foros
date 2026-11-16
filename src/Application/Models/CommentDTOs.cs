@@ -10,13 +10,17 @@ public record CommentDTO(
     DateTimeOffset Date,
     bool Edited,
     bool Invisible,
+    bool IsDeleted,
     string Body,
     Guid? RepliedComment = null
 )
 {
     public static CommentDTO Create(Comment comment)
     {
-        if (comment.Invisible) comment.Redact();
+        // oculta el texto sin modificar la entidad
+        var body = comment.Invisible
+            ? "*Este comentario está oculto.*"
+            : comment.Body.ToString();
         return new CommentDTO(
             comment.Id,
             comment.Poster,
@@ -24,7 +28,8 @@ public record CommentDTO(
             comment.DateEdited ?? comment.DateCreated,
             comment.Edited,
             comment.Invisible,
-            comment.Body.ToString(),
+            comment.IsDeleted,
+            body,
             comment.RepliedComment
         );
     }
