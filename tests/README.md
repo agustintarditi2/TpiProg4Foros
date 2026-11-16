@@ -26,20 +26,23 @@ GitHub Actions: [Automated tests](../../actions/workflows/tests.yml). The workfl
 - **User (Domain/Application):** registration, email and password-hash validation, role permissions, profile updates, deactivation, age boundary, immutable date of birth.
 - **Authentication and authorization:** credentials, JWT claims, inactive accounts, role-based endpoint metadata.
 - **Ban (Domain/Application):** role hierarchy, duration and reason, active ban uniqueness, expiration/revocation, persisted status changes, banned-user restrictions on posts and authentication.
-- **Web:** JwtBearer `OnTokenValidated` event and endpoint authorization metadata.
+- **Web:** JwtBearer `OnTokenValidated` event, endpoint authorization metadata, and real HTTP requests through the in-process ASP.NET Core TestServer with signed JWTs and role checks.
 - **Infrastructure:** active-ban query and visibility-flag persistence for posts and comments using isolated SQLite `Data Source=:memory:`, never the repository's checked-in database.
 
-The test collaborators use per-test isolated fakes. The JWT event test registers `BanServices` to match its production dependency injection needs.
+Unit/application tests use isolated fakes. The HTTP integration tests use real services, repositories, the JWT validator and a fresh in-memory SQLite database for each test factory. The JWT event test registers `BanServices` to match its production dependency injection needs.
 
-## Latest verified run — 2026-11-12
+## Latest verified run — 2026-11-16
 
-[GitHub Actions run 43326226544](../../actions/runs/43326226544) (production synchronized with `develop` commit `3b5dd4f`):
+[GitHub Actions run 43901279859](../../actions/runs/43901279859), synchronized with `develop` commit `0dc1867`:
 
-- Build: **passed**.
-- Tests: **165 passed, 0 failed, 0 skipped**.
-- The original **157 tests all pass**, including the previously failing `BanRepositoryTests.Query_returns_active_bans_only_for_requested_user` SQLite test.
-- Added **8 SQLite round-trip cases** across posts and comments covering all combinations of `HiddenByUser` and `SuppressedByAdmin`. Each verifies that the individual flags and computed `Invisible` state survive reloading in a new `ApplicationDbContext`.
-- The `PersistVisibilityFlags` migration on `develop` adds `SuppressedByAdmin` to both tables and retains the existing `Hidden` column; the test suite uses `EnsureCreated` and does not run actual up/down migrations.
+- Restore/build: **passed**.
+- Tests: **222 passed, 0 failed, 0 skipped**.
+- The previous **202 tests pass unchanged**, plus **20 HTTP integration cases** in `tests/TpiProg4Foros.Tests/Http/`.
+- HTTP cases start the actual ASP.NET Core application via `WebApplicationFactory<PostController>` and `TestServer`; they exercise controllers, ASP.NET Core middleware, JwtBearer and its `OnTokenValidated` event, application services and real EF Core/SQLite repositories.
+- Each factory keeps an independent SQLite `:memory:` connection open. Real login produces a signed JWT; test configuration uses a separate JWT secret, issuer and audience with the real validation logic. The existing `ForosTup.db` is never accessed.
+- Cases cover public/authenticated requests; valid and invalid credentials; malformed, bad-signature and expired tokens; `User`, `Admin` and `SysAdmin` permissions; account deactivation; role changes; banning after token issuance; post creation/editing, public visibility, comment soft deletion, reactions and persistence.
+- Assertions cover HTTP `200`, `201`, `204`, `400`, `401`, `403` and `404` responses.
+- HTTP requests run **in process** rather than over a deployed HTTPS network. This verifies the real HTTP application pipeline but does not constitute an external deployment or browser test.
 
 ## Business rule to confirm
 
@@ -47,8 +50,10 @@ The current `develop` version of `User.cs` requires **16 years** for registratio
 
 ## Coverage limitations and precautions
 
-- Endpoint metadata and the JWT event are tested; there is **no complete HTTP integration test with a signed JWT and real 401/403 responses**.
-- Full delete-cascade scenarios for deeply nested comments are not covered.
-- SQLite round-trip tests use a fresh in-memory database and do **not** validate upgrading an existing SQLite database via migrations or real HTTP requests.
-- `UserServices.ChangeEmail` may reject the user's existing email if the submitted casing differs; this is not covered by the current suite.
-- A new commit on `develop` does not automatically update `Tests`; merge/synchronize `develop` again to avoid running tests against stale production code.
+- HTTP integration now verifies a representative set of routes and genuine JWT handling; it does **not** cover every endpoint or external deployment/network/TLS configuration.
+- The in-memory SQLite factory uses `EnsureCreated` and does not exercise every historical database migration. A separate reaction identity migration test uses a specially constructed earlier schema.
+- Concurrency/races between simultaneous reactions or bans are not covered.
+- Full delete-cascade scenarios for deeply nested comments remain uncovered.
+- The external time API is not exercised in these tests, keeping CI independent of an internet service.
+- `UserServices.ChangeEmail` may reject the user's existing email when the casing differs; this is not covered by the current suite.
+- A new commit on `develop` does not automatically synchronize `Tests`; compare branches before interpreting a run as reflecting current production code.
