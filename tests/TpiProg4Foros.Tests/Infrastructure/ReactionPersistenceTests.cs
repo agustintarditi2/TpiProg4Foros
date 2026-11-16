@@ -114,4 +114,83 @@ public class ReactionPersistenceTests
             Assert.Equal("*Este contenido ha sido eliminado.*", saved.Body.Value);
         }
     }
+    [Fact]
+    public async Task Identity_migration_preserves_existing_reactions_and_generates_new_ids()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = Options(connection);
+
+        // prepara el esquema anterior con identificadores repetidos entre usuarios
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                CREATE TABLE "Users" ("Id" TEXT NOT NULL PRIMARY KEY);
+                CREATE TABLE "Reactions" (
+                    "UserId" TEXT NOT NULL,
+                    "Id" INTEGER NOT NULL,
+                    "Comment" TEXT NULL,
+                    "Post" TEXT NULL,
+                    "Type" INTEGER NOT NULL,
+                    "User" TEXT NOT NULL,
+                    CONSTRAINT "PK_Reactions" PRIMARY KEY ("UserId", "Id"),
+                    FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+                );
+                CREATE TABLE "__EFMigrationsHistory" (
+                    "MigrationId" TEXT NOT NULL PRIMARY KEY,
+                    "ProductVersion" TEXT NOT NULL
+                );
+                INSERT INTO "Users" ("Id")
+                    VALUES ('11111111-1111-1111-1111-111111111111'),
+                           ('22222222-2222-2222-2222-222222222222');
+                INSERT INTO "Reactions" ("UserId", "Id", "Comment", "Post", "Type", "User")
+                    VALUES
+                    ('11111111-1111-1111-1111-111111111111', 1, NULL,
+                     '33333333-3333-3333-3333-333333333333', 1,
+                     '11111111-1111-1111-1111-111111111111'),
+                    ('22222222-2222-2222-2222-222222222222', 1, NULL,
+                     '33333333-3333-3333-3333-333333333333', 0,
+                     '22222222-2222-2222-2222-222222222222');
+                """;
+            await command.ExecuteNonQueryAsync();
+        }
+
+        await using (var db = new ApplicationDbContext(options))
+        {
+            // marca las migraciones anteriores como aplicadas
+            foreach (var id in db.Database.GetMigrations()
+                .Where(m => m != "20261115220200_FixReactionIdentity"))
+            {
+                await using var cmd = connection.CreateCommand();
+                cmd.CommandText = "INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES (@id, '10.0.12')";
+                cmd.Parameters.AddWithValue("@id", id);
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            // aplica la migracion real sobre una tabla con registros
+            await db.Database.MigrateAsync();
+        }
+
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT COUNT(*) FROM Reactions";
+            Assert.Equal(2L, (long)(await command.ExecuteScalarAsync())!);
+
+            command.CommandText = "SELECT COUNT(DISTINCT Id) FROM Reactions";
+            Assert.Equal(2L, (long)(await command.ExecuteScalarAsync())!);
+
+            // la nueva clave debe generarse sin aportar el campo id
+            command.CommandText = """
+                INSERT INTO Reactions (UserId, Comment, Post, Type, User)
+                VALUES ('11111111-1111-1111-1111-111111111111', NULL,
+                        '44444444-4444-4444-4444-444444444444', 1,
+                        '11111111-1111-1111-1111-111111111111')
+                """;
+            await command.ExecuteNonQueryAsync();
+
+            command.CommandText = "SELECT COUNT(*) FROM Reactions";
+            Assert.Equal(3L, (long)(await command.ExecuteScalarAsync())!);
+        }
+    }
+
 }
