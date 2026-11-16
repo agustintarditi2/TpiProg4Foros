@@ -17,10 +17,10 @@ public record CommentDTO(
 {
     public static CommentDTO Create(Comment comment)
     {
-        // oculta el texto sin modificar la entidad
-        var body = comment.Invisible
-            ? "*Este comentario está oculto.*"
-            : comment.Body.ToString();
+         string body = comment.Invisible
+        ? "*Este comentario está oculto.*"
+        : comment.Body.ToString();
+
         return new CommentDTO(
             comment.Id,
             comment.Poster,

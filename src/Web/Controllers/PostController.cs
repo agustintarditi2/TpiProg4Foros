@@ -17,7 +17,7 @@ public class PostController : ControllerBase
     private readonly PostServices _services;
     private readonly ReactionServices _reactionServices;
 
-    public PostController(PostServices postServices, ReactionServices reactionServices)
+    public PostController(PostServices postServices,ReactionServices reactionServices)
     {
         _services = postServices;
         _reactionServices = reactionServices;
@@ -106,23 +106,37 @@ public class PostController : ControllerBase
         await _services.Delete(id,userId, ct);
         return NoContent();
     }
+
     [Authorize]
     [HttpPut("{id:guid}/reaction")]
-    public async Task<IActionResult> SetPostReaction([FromRoute] Guid id, [FromBody] bool isLike, CancellationToken ct)
+    public async Task<IActionResult> SetPostReaction(
+        [FromRoute] Guid id,
+        [FromBody] bool isLike,
+        CancellationToken ct)
     {
         // obtiene el usuario autenticado
         Guid userId = User.GetAuthenticatedUserId();
-        await _reactionServices.SetPostReaction(id, userId, isLike, ct);
+
+        // agrega o cambia la reaccion
+        await _reactionServices.SetPostReaction(
+            id, userId, isLike, ct);
+
         return NoContent();
     }
 
     [Authorize]
     [HttpDelete("{id:guid}/reaction")]
-    public async Task<IActionResult> RemovePostReaction([FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> RemovePostReaction(
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         // obtiene el usuario autenticado
         Guid userId = User.GetAuthenticatedUserId();
-        await _reactionServices.RemovePostReaction(id, userId, ct);
+
+        // elimina la reaccion del usuario
+        await _reactionServices.RemovePostReaction(
+            id, userId, ct);
+
         return NoContent();
     }
 }

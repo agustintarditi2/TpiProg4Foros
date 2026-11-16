@@ -1,3 +1,4 @@
+﻿
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -8,7 +9,7 @@ namespace Infrastructure.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // conserva los datos y asigna nuevos ids globales autoincrementales
+            // conserva las reacciones y genera nuevos ids autoincrementales
             migrationBuilder.Sql("""
                 CREATE TABLE "__Reactions_new" (
                     "Id" INTEGER NOT NULL CONSTRAINT "PK_Reactions" PRIMARY KEY AUTOINCREMENT,
@@ -27,17 +28,23 @@ namespace Infrastructure.Migrations
 
                 DROP TABLE "Reactions";
                 ALTER TABLE "__Reactions_new" RENAME TO "Reactions";
-                CREATE INDEX "IX_Reactions_UserId" ON "Reactions" ("UserId");
+
+                CREATE INDEX "IX_Reactions_UserId"
+                    ON "Reactions" ("UserId");
+
                 CREATE UNIQUE INDEX "IX_Reactions_User_Comment"
-                    ON "Reactions" ("User", "Comment") WHERE "Comment" IS NOT NULL;
+                    ON "Reactions" ("User", "Comment")
+                    WHERE "Comment" IS NOT NULL;
+
                 CREATE UNIQUE INDEX "IX_Reactions_User_Post"
-                    ON "Reactions" ("User", "Post") WHERE "Post" IS NOT NULL;
+                    ON "Reactions" ("User", "Post")
+                    WHERE "Post" IS NOT NULL;
                 """);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // restaura la clave compuesta sin descartar reacciones
+            // restaura la clave compuesta y conserva las reacciones
             migrationBuilder.Sql("""
                 CREATE TABLE "__Reactions_old" (
                     "UserId" TEXT NOT NULL,
@@ -57,10 +64,14 @@ namespace Infrastructure.Migrations
 
                 DROP TABLE "Reactions";
                 ALTER TABLE "__Reactions_old" RENAME TO "Reactions";
+
                 CREATE UNIQUE INDEX "IX_Reactions_User_Comment"
-                    ON "Reactions" ("User", "Comment") WHERE "Comment" IS NOT NULL;
+                    ON "Reactions" ("User", "Comment")
+                    WHERE "Comment" IS NOT NULL;
+
                 CREATE UNIQUE INDEX "IX_Reactions_User_Post"
-                    ON "Reactions" ("User", "Post") WHERE "Post" IS NOT NULL;
+                    ON "Reactions" ("User", "Post")
+                    WHERE "Post" IS NOT NULL;
                 """);
         }
     }

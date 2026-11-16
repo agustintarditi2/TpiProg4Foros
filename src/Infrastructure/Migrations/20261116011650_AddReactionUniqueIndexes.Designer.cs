@@ -11,8 +11,8 @@ using MyApp.Infrastructure.Persistence;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261115220200_FixReactionIdentity")]
-    partial class FixReactionIdentity
+    [Migration("20261116011650_AddReactionUniqueIndexes")]
+    partial class AddReactionUniqueIndexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -278,8 +278,7 @@ namespace Infrastructure.Migrations
 
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("INTEGER")
-                                .HasAnnotation("Sqlite:Autoincrement", true);
+                                .HasColumnType("INTEGER");
 
                             b1.Property<Guid?>("Comment")
                                 .HasColumnType("TEXT");
@@ -293,9 +292,7 @@ namespace Infrastructure.Migrations
                             b1.Property<Guid>("User")
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("UserId");
+                            b1.HasKey("UserId", "Id");
 
                             b1.HasIndex("User", "Comment")
                                 .IsUnique()

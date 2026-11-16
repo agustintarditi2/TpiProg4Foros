@@ -270,13 +270,9 @@ namespace Infrastructure.Migrations
                 {
                     b.OwnsMany("MyApp.Domain.ValueObjects.Reaction", "Reactions", b1 =>
                         {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("TEXT");
-
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("INTEGER")
-                                .HasAnnotation("Sqlite:Autoincrement", true);
+                                .HasColumnType("INTEGER");
 
                             b1.Property<Guid?>("Comment")
                                 .HasColumnType("TEXT");
@@ -288,6 +284,9 @@ namespace Infrastructure.Migrations
                                 .HasColumnType("INTEGER");
 
                             b1.Property<Guid>("User")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<Guid>("UserId")
                                 .HasColumnType("TEXT");
 
                             b1.HasKey("Id");

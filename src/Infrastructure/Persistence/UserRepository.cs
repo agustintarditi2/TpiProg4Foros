@@ -23,12 +23,14 @@ public sealed class UserRepository : IUserRepository
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
         return user;
     }
+
     public async Task<User?> GetByIdWithReactions(UserId id, CancellationToken ct)
-    {
-        // recupera el usuario con sus reacciones
-        return await _context.Users.Include(u => u.Reactions)
-            .FirstOrDefaultAsync(u => u.Id == id, ct);
-    }
+{
+    // obtiene el usuario junto con sus reacciones
+    return await _context.Users
+        .Include(u => u.Reactions)
+        .FirstOrDefaultAsync(u => u.Id == id, ct);
+}
     public async Task<User?> GetByEmail(EmailAddress emailAddress, CancellationToken ct)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailAddress, ct);

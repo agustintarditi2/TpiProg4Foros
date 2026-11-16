@@ -8,8 +8,8 @@ public sealed class Comment : TextEntity
     public CommentId Id {get; private set;}
 
     public PostId ParentPost {get; private set;}
-    public bool IsDeleted { get; private set; } = false;
     public CommentId? RepliedComment {get; private set;}
+    public bool IsDeleted { get; private set; } = false;
 
     private Comment() {Body = null!;}
     public Comment(
@@ -30,13 +30,13 @@ public sealed class Comment : TextEntity
         DateCreated = dateCreated;
         DateEdited = null;
     }
-
-    // elimina logicamente el comentario
     public void MarkAsDeleted()
     {
         if (IsDeleted)
-            throw new DomainException("Comment is already deleted.");
+            throw new DomainException(
+                "Comment is already deleted.");
+
         base.Delete();
         IsDeleted = true;
-    }
+}
 }

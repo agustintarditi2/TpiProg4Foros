@@ -11,8 +11,8 @@ using MyApp.Infrastructure.Persistence;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261115220100_AddReactionUniqueIndexes")]
-    partial class AddReactionUniqueIndexes
+    [Migration("20261116021729_FixReactionIdentity")]
+    partial class FixReactionIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -273,9 +273,6 @@ namespace Infrastructure.Migrations
                 {
                     b.OwnsMany("MyApp.Domain.ValueObjects.Reaction", "Reactions", b1 =>
                         {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("TEXT");
-
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("INTEGER");
@@ -292,7 +289,12 @@ namespace Infrastructure.Migrations
                             b1.Property<Guid>("User")
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("UserId", "Id");
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("UserId");
 
                             b1.HasIndex("User", "Comment")
                                 .IsUnique()

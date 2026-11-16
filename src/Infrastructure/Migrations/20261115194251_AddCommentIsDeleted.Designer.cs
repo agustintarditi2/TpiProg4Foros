@@ -11,7 +11,7 @@ using MyApp.Infrastructure.Persistence;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261115220000_AddCommentIsDeleted")]
+    [Migration("20261115194251_AddCommentIsDeleted")]
     partial class AddCommentIsDeleted
     {
         /// <inheritdoc />

@@ -61,8 +61,78 @@ public sealed class User
     public void ChangePassword(string newHash)
     {
         Password = PasswordHash.Create(newHash);
-
     }
+
+    // registra o cambia una reaccion a una publicacion
+    public void SetPostReaction(PostId postId, bool isLike)
+    {
+        if (postId.IsEmpty)
+            throw new DomainException("Post ID is required.");
+
+        Reactions ??= new List<Reaction>();
+
+        var existing = Reactions.FirstOrDefault(r => r.Post == postId);
+
+        if (existing is null)
+            Reactions.Add(new Reaction(postId, Id, isLike));
+        else
+            existing.ChangeType(isLike);
+    }
+
+    // registra o cambia una reaccion a un comentario
+    public void SetCommentReaction(CommentId commentId, bool isLike)
+    {
+        if (commentId.IsEmpty)
+            throw new DomainException("Comment ID is required.");
+
+        Reactions ??= new List<Reaction>();
+
+        var existing = Reactions.FirstOrDefault(r => r.Comment == commentId);
+
+        if (existing is null)
+            Reactions.Add(new Reaction(commentId, Id, isLike));
+        else
+            existing.ChangeType(isLike);
+    }
+
+    public void RemovePostReaction(PostId postId)
+    {
+        if (postId.IsEmpty)
+            throw new DomainException("Post ID is required.");
+
+        if (Reactions is null)
+            return;
+
+        // Busca la reacción del usuario a esta publicación
+        var existingReaction = Reactions.FirstOrDefault(
+            r => r.Post == postId);
+
+        // Si no existe, no hay nada que eliminar
+        if (existingReaction is null)
+            return;
+
+        // Elimina la reacción
+        Reactions.Remove(existingReaction);
+    }
+    public void RemoveCommentReaction(CommentId commentId)
+{
+    if (commentId.IsEmpty)
+        throw new DomainException("Comment ID is required.");
+
+    if (Reactions is null)
+        return;
+
+    // busca la reaccion del usuario a este comentario
+    var existingReaction = Reactions.FirstOrDefault(
+        r => r.Comment == commentId);
+
+    // si no existe, no hay nada que eliminar
+    if (existingReaction is null)
+        return;
+
+    // elimina la reaccion
+    Reactions.Remove(existingReaction);
+}
     public void DeactivateAccount(string disabledPasswordHash)
     {
         if (!IsActive)
@@ -80,53 +150,6 @@ public sealed class User
         Password = PasswordHash.Create(disabledPasswordHash);
         Role = UserRole.User;
     }
-    // registra o cambia una reaccion a una publicacion
-    public void SetPostReaction(PostId postId, bool isLike)
-    {
-        if (postId.IsEmpty)
-            throw new DomainException("Post ID is required.");
 
-        Reactions ??= new List<Reaction>();
-        var existing = Reactions.FirstOrDefault(r => r.Post == postId);
-        if (existing is null)
-            Reactions.Add(new Reaction(postId, Id, isLike));
-        else
-            existing.ChangeType(isLike);
-    }
-
-    // registra o cambia una reaccion a un comentario
-    public void SetCommentReaction(CommentId commentId, bool isLike)
-    {
-        if (commentId.IsEmpty)
-            throw new DomainException("Comment ID is required.");
-
-        Reactions ??= new List<Reaction>();
-        var existing = Reactions.FirstOrDefault(r => r.Comment == commentId);
-        if (existing is null)
-            Reactions.Add(new Reaction(commentId, Id, isLike));
-        else
-            existing.ChangeType(isLike);
-    }
-
-    // elimina una reaccion a una publicacion
-    public void RemovePostReaction(PostId postId)
-    {
-        if (postId.IsEmpty)
-            throw new DomainException("Post ID is required.");
-
-        var existing = Reactions?.FirstOrDefault(r => r.Post == postId);
-        if (existing is not null)
-            Reactions!.Remove(existing);
-    }
-
-    // elimina una reaccion a un comentario
-    public void RemoveCommentReaction(CommentId commentId)
-    {
-        if (commentId.IsEmpty)
-            throw new DomainException("Comment ID is required.");
-
-        var existing = Reactions?.FirstOrDefault(r => r.Comment == commentId);
-        if (existing is not null)
-            Reactions!.Remove(existing);
-    }
+    
 }
