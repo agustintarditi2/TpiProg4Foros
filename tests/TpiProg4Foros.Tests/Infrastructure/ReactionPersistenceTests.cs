@@ -159,7 +159,7 @@ public class ReactionPersistenceTests
         {
             // marca las migraciones anteriores como aplicadas
             foreach (var id in db.Database.GetMigrations()
-                .Where(m => m != "20261115220200_FixReactionIdentity"))
+                .Where(m => m != "20261116021729_FixReactionIdentity"))
             {
                 await using var cmd = connection.CreateCommand();
                 cmd.CommandText = "INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES (@id, '10.0.12')";
