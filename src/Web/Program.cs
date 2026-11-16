@@ -4,6 +4,9 @@ using MyApp.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
 using MyApp.Web.Middlewares.ErrorHandling;
+using Microsoft.EntityFrameworkCore;
+using MyApp.Infrastructure.Persistence;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,23 +93,37 @@ var app = builder.Build();
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 
-// Se agrega Swagger y OpenAPI
-if (app.Environment.IsDevelopment())
+// Habilita Swagger en desarrollo o cuando se configure explícitamente.
+if (app.Environment.IsDevelopment() ||
+    app.Configuration.GetValue<bool>("Swagger:Enabled"))
 {
     app.MapOpenApi();
+
     app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/openapi/v1.json", "My API V1");
-});
+    {
+        options.SwaggerEndpoint(
+            "/openapi/v1.json",
+            "Foros API V1"
+        );
+    });
 }
 
-// Esto es para hacer migración automática al levantar el proyecto.
-/*using (var scope = app.Services.CreateScope())
+// Aplica migraciones automáticamente cuando la configuración lo habilita.
+if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-}*/
+    using var scope = app.Services.CreateScope();
 
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    db.Database.Migrate();
+}
+
+// Inicializa el SysAdmin si está habilitado.
+await SysAdminSeeder.SeedAsync(
+    app.Services,
+    app.Configuration
+);
 
 app.UseHttpsRedirection();
 
