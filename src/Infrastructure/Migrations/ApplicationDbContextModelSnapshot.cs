@@ -78,6 +78,11 @@ namespace Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("Hidden");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<Guid>("ParentPost")
                         .HasColumnType("TEXT");
 
@@ -286,7 +291,13 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("UserId", "Id");
 
-                            b1.HasIndex("User", "Post", "Comment");
+                            b1.HasIndex("User", "Comment")
+                                .IsUnique()
+                                .HasFilter("\"Comment\" IS NOT NULL");
+
+                            b1.HasIndex("User", "Post")
+                                .IsUnique()
+                                .HasFilter("\"Post\" IS NOT NULL");
 
                             b1.ToTable("Reactions", (string)null);
 
