@@ -137,6 +137,9 @@ internal sealed class FakeUsers : IUserRepository
     public Task<User?> GetById(UserId id, CancellationToken ct) =>
         Task.FromResult(Items.GetValueOrDefault(id.Value));
 
+    public Task<User?> GetByIdWithReactions(UserId id, CancellationToken ct) =>
+        GetById(id, ct);
+
     public Task<User?> GetByEmail(EmailAddress email, CancellationToken ct) =>
         Task.FromResult(Items.Values.FirstOrDefault(u => u.Email == email));
 
@@ -161,4 +164,41 @@ internal sealed class FakeUsers : IUserRepository
 
     public Task<bool> EmailExists(EmailAddress email) =>
         Task.FromResult(Items.Values.Any(u => u.Email == email));
+}
+
+internal sealed class FakeComments : ICommentRepository
+{
+    public Dictionary<Guid, Comment> Items { get; } = [];
+    public int Updates { get; private set; }
+
+    public Task<List<Comment>> GetByPost(PostId id, CancellationToken ct) =>
+        Task.FromResult(Items.Values.Where(c => c.ParentPost == id).ToList());
+
+    public Task<List<Comment>> GetByThread(CommentId id, CancellationToken ct) =>
+        Task.FromResult(Items.Values.Where(c => c.RepliedComment == id).ToList());
+
+    public Task<List<Comment>> GetByPoster(UserId id, CancellationToken ct) =>
+        Task.FromResult(Items.Values.Where(c => c.Poster == id).ToList());
+
+    public Task<Comment?> GetById(CommentId id, CancellationToken ct) =>
+        Task.FromResult(Items.GetValueOrDefault(id.Value));
+
+    public Task<Comment> Add(Comment entity, CancellationToken ct)
+    {
+        Items[entity.Id.Value] = entity;
+        return Task.FromResult(entity);
+    }
+
+    public Task Update(Comment entity, CancellationToken ct)
+    {
+        Updates++;
+        Items[entity.Id.Value] = entity;
+        return Task.CompletedTask;
+    }
+
+    public Task Delete(Comment entity, CancellationToken ct)
+    {
+        Items.Remove(entity.Id.Value);
+        return Task.CompletedTask;
+    }
 }
