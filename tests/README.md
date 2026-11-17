@@ -1,12 +1,27 @@
 # Automated tests for TpiProg4Foros
 
-This branch runs the **same production code as `main`** plus a dedicated .NET 10 xUnit test project. It does not modify `main`.
+This branch is dedicated to validating the current API with xUnit and real in-process HTTP requests. **Only `Tests` was modified** in this testing cycle; it does not deploy to Railway.
 
 ## Synchronization — 2026-11-17
 
-The complete `src/` tree matches `main` commit `289bb19fcdc9c234056b87f45e26820249bbaa4b` exactly, including removal of the three obsolete Class1 files. Production code is copied without test-only changes. Other branches are untouched.
+- The `src/` tree was synchronized from `develop` commit `0ba968a92f591a136cccf7d75efb2b4387603c70` (including its Railway-ready startup configuration).
+- The test factory was updated to provide an isolated JWT signing key *before* `Program.cs` executes, since production now requires its secret at startup.
+- The full-user authorization regression revealed a case-sensitive role spelling defect: `Sysadmin` instead of `SysAdmin`. This one-line source fix exists **only on `Tests`** for verification; apply the equivalent fix to `develop` separately.
+- `main`, `develop`, `fix-persistencia`, and Railway were not changed by these commits.
 
-Ban authorization metadata tests now consider controller-level and action-level policies and reject anonymous overrides. Four additional HTTP cases check `GET /Ban`: anonymous (401), User (403), Admin (200), and SysAdmin (200). Current validation is available in the [Automated tests workflow](../../actions/workflows/tests.yml); the historical results below predate this synchronization.
+## Latest verified run — 2026-11-17
+
+[GitHub Actions run 44200054930](../../actions/runs/44200054930):
+**236 passed, 0 failed, 0 skipped**.
+
+The suite includes additional HTTP integration checks with distinct JWT identities for:
+- Post deletion and hide/unhide persistence
+- Comment editing and visibility persistence
+- Forum creation, editing, and deactivation
+- Ban modification and revocation
+- Full-user endpoint authorization (anonymous / User / Admin / SysAdmin)
+
+Each HTTP fixture uses SQLite `Data Source=:memory:`, with a separate database per factory. The original `ForosTup.db` and Railway volume are not accessed. These are in-process tests, not remote browser or live Railway smoke tests.
 
 ## Run
 
@@ -62,4 +77,4 @@ The current `main` version of `User.cs` requires **16 years** for registration. 
 - Full delete-cascade scenarios for deeply nested comments remain uncovered.
 - The external time API is not exercised in these tests, keeping CI independent of an internet service.
 - `UserServices.ChangeEmail` may reject the user's existing email when the casing differs; this is not covered by the current suite.
-- A new commit on `main` does not automatically synchronize `Tests`; compare branches before interpreting a run as reflecting current production code.
+- A new commit on `develop` does not automatically synchronize `Tests`; compare branches before interpreting a run as reflecting current production code.
