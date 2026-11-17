@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -32,6 +33,25 @@ internal sealed class ApiTestFactory : WebApplicationFactory<PostController>
     public ApiTestFactory()
     {
         _connection.Open();
+    }
+
+    // The production app reads the signing key before Build(). Configuration
+    // added by ConfigureWebHost is too late for minimal-hosting startup.
+    // Supply test-only settings through host configuration before Program runs.
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        builder.ConfigureHostConfiguration(config =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Authentication:SecretForKey"] = JwtTestKey,
+                ["Authentication:Issuer"] = JwtTestIssuer,
+                ["Authentication:Audience"] = JwtTestAudience,
+                ["Database:ApplyMigrationsOnStartup"] = "false",
+                ["SysAdminSeed:Enabled"] = "false"
+            });
+        });
+        return base.CreateHost(builder);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
