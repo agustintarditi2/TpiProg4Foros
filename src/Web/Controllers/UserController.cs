@@ -34,7 +34,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [Authorize(Roles = "Sysadmin, Admin")]
+    [Authorize(Roles = "SysAdmin, Admin")]
     [HttpGet("{id}/full")]
     public async Task<ActionResult<UserDTO>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
