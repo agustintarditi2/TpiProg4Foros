@@ -6,7 +6,7 @@ public record Reaction
     public PostId? Post { get; init; }
     public CommentId? Comment { get; init; }
     public UserId User { get; init; }
-    public bool Type { get; init; }
+    public bool Type { get; private set; }
 
     private Reaction() { }
 

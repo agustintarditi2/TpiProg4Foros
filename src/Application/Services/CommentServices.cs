@@ -15,7 +15,7 @@ public sealed class CommentServices
     private readonly IUserRepository _userRepository;
     private readonly IForumRepository _forumRepository;
     private readonly IPostRepository _postRepository;
-    public CommentServices(ICommentRepository commentRepository, IPostRepository postRepository, IUserRepository userRepository, IClock clock, ISanitizer sanitizer)
+    public CommentServices(ICommentRepository commentRepository, IPostRepository postRepository, IUserRepository userRepository, IForumRepository forumRepository, IClock clock, ISanitizer sanitizer)
     {
         _sanitizer = sanitizer;
         _repository = commentRepository;
