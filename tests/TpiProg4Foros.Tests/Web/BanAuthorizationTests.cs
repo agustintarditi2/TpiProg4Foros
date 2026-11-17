@@ -20,8 +20,11 @@ public class BanAuthorizationTests
         var method = typeof(BanController).GetMethod(methodName);
         Assert.NotNull(method);
 
-        var policy = method.GetCustomAttributes<AuthorizeAttribute>(true).SingleOrDefault();
-        Assert.NotNull(policy);
-        Assert.Equal("Admin,SysAdmin", policy.Roles);
+        var policies = typeof(BanController).GetCustomAttributes<AuthorizeAttribute>(true)
+            .Concat(method.GetCustomAttributes<AuthorizeAttribute>(true)).ToArray();
+        Assert.NotEmpty(policies);
+        Assert.All(policies, policy => Assert.Equal("Admin,SysAdmin", policy.Roles));
+        Assert.Empty(typeof(BanController).GetCustomAttributes<AllowAnonymousAttribute>(true));
+        Assert.Empty(method.GetCustomAttributes<AllowAnonymousAttribute>(true));
     }
 }

@@ -18,7 +18,7 @@ public class AuthServices
     private readonly IClock _clock;
     private readonly BanServices _bans;
     public AuthServices(
-        IUserRepository userRepository, 
+        IUserRepository userRepository,
         IPasswordHasher hasher,
         BanServices banServices,
         IJwtServices jwt,
@@ -27,11 +27,11 @@ public class AuthServices
     {
         _repo = userRepository;
         _hasher = hasher;
-         _bans = banServices;
+        _bans = banServices;
         _jwt = jwt;
         _clock = clock;
     }
-    
+
     public async Task<string> Authenticate(LoginUserDTO loginData, CancellationToken ct)
     {
         // Buscamos el usuario
@@ -50,10 +50,10 @@ public class AuthServices
     }
 
     public async Task<UserDTO> ValidateToken(string token, CancellationToken ct)
-    {   
+    {
 
         var val = _jwt.ValidateToken(token);
-         // Busca el identificador del usuario dentro de los claims del JWT
+        // Busca el identificador del usuario dentro de los claims del JWT
         string? userClaim = val?.FindFirst("user")?.Value;
 
         if (userClaim is null)
@@ -64,14 +64,14 @@ public class AuthServices
         // Busca al usuario en la base de datos
         User? fullUser = await _repo.GetById((UserId)user, ct);
 
-        if (fullUser is null || !fullUser.IsActive) 
+        if (fullUser is null || !fullUser.IsActive)
             throw new AuthenticationFailedException("Token user not found or account is inactive.");
-        
+
         // comprueba si el usuario fue baneado despues de conseguir el jwt
         await EnsureNotBannedForAuth(fullUser.Id.Value, ct);
 
         return UserDTO.Create(fullUser, _clock.UtcNow);
-    } 
+    }
 
     private async Task EnsureNotBannedForAuth(
     Guid userId,

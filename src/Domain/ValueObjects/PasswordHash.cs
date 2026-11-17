@@ -5,8 +5,8 @@ namespace MyApp.Domain.ValueObjects;
 
 public sealed record PasswordHash
 {
-    public string Value {get;}
-    private PasswordHash( string value )
+    public string Value { get; }
+    private PasswordHash(string value)
     {
         Value = value;
     }
@@ -18,7 +18,7 @@ public sealed record PasswordHash
             throw new DomainValidationException("The password is too long. It must be less than 64 characters.");
         if (value.Length < 12)
             throw new DomainValidationException("The password is too short. It must be at least 12 characters.");
-// Validamos que la contraseña no consista solo de números.
+        // Validamos que la contraseña no consista solo de números.
         if (Regex.IsMatch(value, @"^\d+$"))
             throw new DomainValidationException("The password cannot consist only of numbers. It must contain letters and/or special characters.");
         return new PasswordHash(value);

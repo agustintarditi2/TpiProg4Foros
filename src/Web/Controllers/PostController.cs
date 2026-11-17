@@ -12,7 +12,7 @@ namespace MyApp.Web.Controllers;
 
 public class PostController : ControllerBase
 {
-    
+
 
     private readonly PostServices _services;
     private readonly ReactionServices _reactionServices;
@@ -59,17 +59,17 @@ public class PostController : ControllerBase
             newPost
         );
     }
-    
+
     [Authorize]
     [HttpPatch("{id:guid}")]
 
     public async Task<ActionResult> EditPost([FromRoute] Guid id, [FromBody] string newBody, CancellationToken ct)
-    {   
+    {
         Guid userId = User.GetAuthenticatedUserId();
-        await _services.Update(id, newBody,userId, ct);
+        await _services.Update(id, newBody, userId, ct);
         return NoContent();
     }
-    
+
     [Authorize(Roles = "SysAdmin, Admin")]
     [HttpPatch("{id:guid}/suppress")]
 
@@ -78,7 +78,7 @@ public class PostController : ControllerBase
         await _services.Suppress(id, hidden, ct);
         return NoContent();
     }
-    
+
     [Authorize]
     [HttpPatch("{id:guid}/visible")]
 
@@ -92,18 +92,18 @@ public class PostController : ControllerBase
     [Authorize]
     [HttpGet("mine")]
     public async Task<ActionResult<List<PostDTO>>> GetMyPosts(CancellationToken ct)
-        {
-            Guid userId = User.GetAuthenticatedUserId();
-            var posts = await _services.GetMyPosts(userId, ct);
-            return Ok(posts);
-        }
+    {
+        Guid userId = User.GetAuthenticatedUserId();
+        var posts = await _services.GetMyPosts(userId, ct);
+        return Ok(posts);
+    }
 
     [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeletePost([FromRoute] Guid id, CancellationToken ct)
     {
         Guid userId = User.GetAuthenticatedUserId();
-        await _services.Delete(id,userId, ct);
+        await _services.Delete(id, userId, ct);
         return NoContent();
     }
 

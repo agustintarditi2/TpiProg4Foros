@@ -5,10 +5,10 @@ namespace MyApp.Domain.Entities;
 
 public sealed class Post : TextEntity
 {
-    public PostId Id {get; private set;}
-    public ForumId ForumId {get; private set;}
+    public PostId Id { get; private set; }
+    public ForumId ForumId { get; private set; }
 
-    private Post() {Body = null!;}
+    private Post() { Body = null!; }
     public Post(string body, UserId poster, ForumId forum, DateTimeOffset dateCreated)
     {
         if (forum.IsEmpty)

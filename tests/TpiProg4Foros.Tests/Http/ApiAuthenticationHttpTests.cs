@@ -37,6 +37,24 @@ public sealed class ApiAuthenticationHttpTests
         return token;
     }
 
+    [Theory]
+    [InlineData(null, HttpStatusCode.Unauthorized)]
+    [InlineData("http-user@example.invalid", HttpStatusCode.Forbidden)]
+    [InlineData("http-admin@example.invalid", HttpStatusCode.OK)]
+    [InlineData("http-sysadmin@example.invalid", HttpStatusCode.OK)]
+    public async Task Ban_listing_enforces_controller_role_policy(
+        string? email, HttpStatusCode expectedStatus)
+    {
+        using var factory = new ApiTestFactory();
+        await factory.SeedAsync();
+        using var client = factory.CreateHttpsClient();
+        if (email is not null)
+            SetBearer(client, await LoginAsync(client, email));
+
+        using var response = await client.GetAsync("/Ban");
+        Assert.Equal(expectedStatus, response.StatusCode);
+    }
+
     [Fact]
     public async Task Anonymous_post_creation_is_401()
     {

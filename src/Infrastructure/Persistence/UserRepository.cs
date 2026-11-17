@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using MyApp.Application.Interfaces;
 using MyApp.Domain.Entities;
 using MyApp.Domain.ValueObjects;

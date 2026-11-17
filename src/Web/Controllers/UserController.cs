@@ -34,7 +34,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [Authorize(Roles ="Sysadmin, Admin")]
+    [Authorize(Roles = "Sysadmin, Admin")]
     [HttpGet("{id}/full")]
     public async Task<ActionResult<UserDTO>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public async Task<ActionResult<UserDTO>> GetSelf([FromHeader] string token, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserDTO>> GetSelf( CancellationToken cancellationToken)
     {
         Guid userId = User.GetAuthenticatedUserId();
         var user = await _services.GetById(userId, cancellationToken);
@@ -55,7 +55,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserId>> RegisterUser(CreateUserDTO sentUser, CancellationToken cancellationToken)
     {
         var registeredUserId = await _services.CreateUser(sentUser, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = registeredUserId },          registeredUserId);
+        return CreatedAtAction(nameof(GetById), new { id = registeredUserId }, registeredUserId);
     }
 
     [Authorize]
@@ -90,7 +90,7 @@ public class UserController : ControllerBase
     {
         // se identifica al usuario que quiere eliminar su cuenta
         Guid userId = User.GetAuthenticatedUserId();
-        
+
         await _services.DeleteOwnAccount(userId, ct);
         return NoContent();
     }

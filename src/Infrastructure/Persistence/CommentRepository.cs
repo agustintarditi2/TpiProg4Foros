@@ -1,4 +1,4 @@
- using MyApp.Application.Interfaces;
+using MyApp.Application.Interfaces;
 using MyApp.Domain.Entities;
 using MyApp.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -68,7 +68,7 @@ public sealed class CommentRepository : ICommentRepository
     }
 
 
-    
+
     private async Task<int> SaveChanges(CancellationToken cancellationToken)
     {
         return await _context.SaveChangesAsync(cancellationToken);

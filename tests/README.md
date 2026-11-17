@@ -1,6 +1,12 @@
 # Automated tests for TpiProg4Foros
 
-This branch runs the **same production code as `develop`** plus a dedicated .NET 10 xUnit test project. It does not modify `develop`.
+This branch runs the **same production code as `main`** plus a dedicated .NET 10 xUnit test project. It does not modify `main`.
+
+## Synchronization — 2026-11-17
+
+The complete `src/` tree matches `main` commit `289bb19fcdc9c234056b87f45e26820249bbaa4b` exactly, including removal of the three obsolete Class1 files. Production code is copied without test-only changes. Other branches are untouched.
+
+Ban authorization metadata tests now consider controller-level and action-level policies and reject anonymous overrides. Four additional HTTP cases check `GET /Ban`: anonymous (401), User (403), Admin (200), and SysAdmin (200). Current validation is available in the [Automated tests workflow](../../actions/workflows/tests.yml); the historical results below predate this synchronization.
 
 ## Run
 
@@ -31,9 +37,9 @@ GitHub Actions: [Automated tests](../../actions/workflows/tests.yml). The workfl
 
 Unit/application tests use isolated fakes. The HTTP integration tests use real services, repositories, the JWT validator and a fresh in-memory SQLite database for each test factory. The JWT event test registers `BanServices` to match its production dependency injection needs.
 
-## Latest verified run — 2026-11-16
+## Historical verified run before main synchronization — 2026-11-16
 
-[GitHub Actions run 43901279859](../../actions/runs/43901279859), synchronized with `develop` commit `0dc1867`:
+[GitHub Actions run 43901279859](../../actions/runs/43901279859), synchronized with the then-current `develop` commit `0dc1867`:
 
 - Restore/build: **passed**.
 - Tests: **222 passed, 0 failed, 0 skipped**.
@@ -46,7 +52,7 @@ Unit/application tests use isolated fakes. The HTTP integration tests use real s
 
 ## Business rule to confirm
 
-The current `develop` version of `User.cs` requires **16 years** for registration. This is what the tests assert because the test branch must match production. A previous discussion specified **13 years**. Do not change the assertions to 13 without an approved production rule change.
+The current `main` version of `User.cs` requires **16 years** for registration. This is what the tests assert because the test branch must match production. A previous discussion specified **13 years**. Do not change the assertions to 13 without an approved production rule change.
 
 ## Coverage limitations and precautions
 
@@ -56,4 +62,4 @@ The current `develop` version of `User.cs` requires **16 years** for registratio
 - Full delete-cascade scenarios for deeply nested comments remain uncovered.
 - The external time API is not exercised in these tests, keeping CI independent of an internet service.
 - `UserServices.ChangeEmail` may reject the user's existing email when the casing differs; this is not covered by the current suite.
-- A new commit on `develop` does not automatically synchronize `Tests`; compare branches before interpreting a run as reflecting current production code.
+- A new commit on `main` does not automatically synchronize `Tests`; compare branches before interpreting a run as reflecting current production code.

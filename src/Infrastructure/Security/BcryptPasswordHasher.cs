@@ -1,4 +1,5 @@
 namespace MyApp.Infrastructure.Security;
+
 using MyApp.Application.Abstractions;
 
 public sealed class BcryptPasswordHasher : IPasswordHasher
