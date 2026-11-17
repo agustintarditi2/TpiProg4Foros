@@ -1,0 +1,51 @@
+
+name: CI-CD Backend Railway
+
+on:
+  push:
+    branches: [develop]
+
+  pull_request:
+    branches: [develop]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compilar backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore TpiProg4Foros.slnx
+
+      - name: Compilar en Release
+        run: dotnet build TpiProg4Foros.slnx --configuration Release --no-restore
+
+  deploy:
+    name: Desplegar en Railway
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+    steps:
+      - name: Obtener codigo
+        uses: actions/checkout@v4
+
+      - name: Desplegar servicio
+        run: railway up --service thriving-victory --environment production --ci
