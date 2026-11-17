@@ -46,7 +46,15 @@ public sealed class ApiAuthenticationHttpTests
         string? email, HttpStatusCode expectedStatus)
     {
         using var factory = new ApiTestFactory();
-        await factory.SeedAsync();
+        var seed = await factory.SeedAsync();
+        // Listing an empty collection returns 404 in main. Seed a ban for an
+        // unrelated user so successful authorization can reach a 200 response.
+        await factory.ModifyDbAsync(db =>
+        {
+            var target = db.Users.Single(u => u.Id == (UserId)seed.OtherId);
+            var admin = db.Users.Single(u => u.Id == (UserId)seed.AdminId);
+            db.Bans.Add(new Ban(target, admin, 5, "Authorization test ban"));
+        });
         using var client = factory.CreateHttpsClient();
         if (email is not null)
             SetBearer(client, await LoginAsync(client, email));
