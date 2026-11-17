@@ -1,6 +1,5 @@
 @URL = http://localhost:5073
 
-GET {{URL}}/weatherforecast/
 Accept: application/json
 
 POST {{URL}}/User/

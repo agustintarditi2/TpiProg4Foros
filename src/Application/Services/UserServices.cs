@@ -25,7 +25,7 @@ public sealed class UserServices
     }
 
 
-//=========================================================================
+    //=========================================================================
 
 
     public async Task<UserId> CreateUser(CreateUserDTO userDTO, CancellationToken ct)
@@ -33,7 +33,7 @@ public sealed class UserServices
         if (await _users.EmailExists(EmailAddress.Create(userDTO.Email)))
             throw new DomainException("Email is already registered.");
 
-        var hash = _hasher.Hash(userDTO.PlainPassword);   
+        var hash = _hasher.Hash(userDTO.PlainPassword);
 
         var user = new User(
             userDTO.Name,
@@ -46,8 +46,8 @@ public sealed class UserServices
         return user.Id;
     }
 
-    
-//=========================================================================
+
+    //=========================================================================
 
 
 
@@ -58,7 +58,7 @@ public sealed class UserServices
             throw new NotFoundException("Requested user not found");
         return UserDTO.Create(foundUser, _clock.UtcNow);
     }
-//=========================================================================
+    //=========================================================================
 
 
 
@@ -70,10 +70,10 @@ public sealed class UserServices
         return RestrictedUserDTO.Create(foundUser, _clock.UtcNow);
     }
 
-    
 
-    
-//=========================================================================
+
+
+    //=========================================================================
 
 
 
@@ -85,12 +85,12 @@ public sealed class UserServices
         return RestrictedUserDTO.CreateList(userList, _clock.UtcNow);
     }
 
-    
-//=========================================================================
+
+    //=========================================================================
 
 
 
-    public async Task UpdateUser(PatchUserDTO user,Guid authenticatedUserId, CancellationToken ct)
+    public async Task UpdateUser(PatchUserDTO user, Guid authenticatedUserId, CancellationToken ct)
     {
         // se busca al usuario por el ID obtenido del JWT
         User? changedUser = await _users.GetById(
@@ -117,11 +117,11 @@ public sealed class UserServices
     }
 
 
-// Métodos que se llaman para modificar al usuario que después devuelve UpdateUser()
+    // Métodos que se llaman para modificar al usuario que después devuelve UpdateUser()
 
     private async Task<User> ChangeEmail(string email, User user)
     {
-        if (user.Email.ToString()==email)
+        if (user.Email.ToString() == email)
             return user;
         if (await _users.EmailExists(EmailAddress.Create(email)))
             throw new DomainException("An account for this email address already exists.");
@@ -144,36 +144,36 @@ public sealed class UserServices
     }
 
     public async Task ChangeUserRole(Guid targetUserId, int role, Guid authenticatedUserId, CancellationToken ct)
-{
-    // Verifica que quien realiza el cambio sea SysAdmin
-    User? admin = await _users.GetById(
-        (UserId)authenticatedUserId, ct);
+    {
+        // Verifica que quien realiza el cambio sea SysAdmin
+        User? admin = await _users.GetById(
+            (UserId)authenticatedUserId, ct);
 
-    if (admin is null || admin.Role != UserRole.SysAdmin)
-        throw new UnauthorizedAccessException(
-            "Only SysAdmin can change user roles.");
+        if (admin is null || admin.Role != UserRole.SysAdmin)
+            throw new UnauthorizedAccessException(
+                "Only SysAdmin can change user roles.");
 
-    // Nadie puede modificar su propio rol
-    if (targetUserId == authenticatedUserId)
-        throw new UnauthorizedAccessException(
-            "You cannot change your own role.");
+        // Nadie puede modificar su propio rol
+        if (targetUserId == authenticatedUserId)
+            throw new UnauthorizedAccessException(
+                "You cannot change your own role.");
 
-    // Valida que el rol exista
-    if (!Enum.IsDefined(typeof(UserRole), role))
-        throw new DomainException("Invalid role specified.");
+        // Valida que el rol exista
+        if (!Enum.IsDefined(typeof(UserRole), role))
+            throw new DomainException("Invalid role specified.");
 
-    // Busca al usuario que recibirá el nuevo rol
-    User? targetUser = await _users.GetById(
-        (UserId)targetUserId, ct);
+        // Busca al usuario que recibirá el nuevo rol
+        User? targetUser = await _users.GetById(
+            (UserId)targetUserId, ct);
 
-    if (targetUser is null)
-        throw new NotFoundException("Requested user not found");
+        if (targetUser is null)
+            throw new NotFoundException("Requested user not found");
 
-    targetUser.SetRole((UserRole)role);
+        targetUser.SetRole((UserRole)role);
 
-    await _users.Update(targetUser, ct);
-}
-    
+        await _users.Update(targetUser, ct);
+    }
+
     public async Task DeleteOwnAccount(
     Guid authenticatedUserId,
     CancellationToken ct)
@@ -193,5 +193,5 @@ public sealed class UserServices
         userToDelete.DeactivateAccount(disabledHash);
 
         await _users.Update(userToDelete, ct);
-        }
+    }
 }

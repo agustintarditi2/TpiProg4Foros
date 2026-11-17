@@ -1,18 +1,18 @@
-using MyApp.Domain.ValueObjects; 
+using MyApp.Domain.ValueObjects;
 
 namespace MyApp.Domain.Entities;
 
 public abstract class TextEntity
 {
-    public BodyText Body {get; protected set;}
-    public DateTimeOffset DateCreated {get; protected set;}
-    public DateTimeOffset? DateEdited {get; protected set;}
+    public BodyText Body { get; protected set; }
+    public DateTimeOffset DateCreated { get; protected set; }
+    public DateTimeOffset? DateEdited { get; protected set; }
     public bool SuppressedByAdmin { get; private set; } = false;
-    public bool HiddenByUser { get; private set; }= false;
-    public bool Edited {get; protected set;}
+    public bool HiddenByUser { get; private set; } = false;
+    public bool Edited { get; protected set; }
     public bool Invisible =>
         HiddenByUser || SuppressedByAdmin;
-    public UserId Poster {get; protected set;}
+    public UserId Poster { get; protected set; }
 
     protected TextEntity()
     {

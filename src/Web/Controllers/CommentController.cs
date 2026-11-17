@@ -12,7 +12,7 @@ namespace MyApp.Web.Controllers;
 
 public class CommentController : ControllerBase
 {
-    
+
 
     private readonly CommentServices _services;
     private readonly ReactionServices _reactionServices;
@@ -65,17 +65,17 @@ public class CommentController : ControllerBase
             newComment
         );
     }
-    
+
     [Authorize]
     [HttpPatch("{id:guid}")]
 
     public async Task<ActionResult> EditComment([FromRoute] Guid id, [FromBody] string newBody, CancellationToken ct)
-    {   
+    {
         Guid userId = User.GetAuthenticatedUserId();
-        await _services.Update(id, newBody,userId, ct);
+        await _services.Update(id, newBody, userId, ct);
         return NoContent();
     }
-    
+
     [Authorize(Roles = "SysAdmin, Admin")]
     [HttpPatch("{id:guid}/suppress")]
 
@@ -84,7 +84,7 @@ public class CommentController : ControllerBase
         await _services.HideOrUnhide(id, hidden, ct);
         return NoContent();
     }
-    
+
     [Authorize]
     [HttpPatch("{id:guid}/visible")]
 
@@ -94,13 +94,13 @@ public class CommentController : ControllerBase
         await _services.HideOrUnhideSelf(id, userId, hidden, ct);
         return NoContent();
     }
-    
+
     [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeleteComment([FromRoute] Guid id, CancellationToken ct)
     {
         Guid userId = User.GetAuthenticatedUserId();
-        await _services.Delete(id,userId, ct);
+        await _services.Delete(id, userId, ct);
         return NoContent();
     }
 

@@ -24,7 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IPostRepository, PostRepository>();
 
         services.AddScoped<ICommentRepository, CommentRepository>();
-        
+
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<IBanRepository, BanRepository>();

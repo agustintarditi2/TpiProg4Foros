@@ -23,5 +23,5 @@ public class AuthController : ControllerBase
         string token = await _service.Authenticate(loginDTO, ct);
         return Ok(token);
     }
-    
+
 }

@@ -40,7 +40,7 @@ public static class AuthenticationExtensions
                         ValidateLifetime = true,
                         RoleClaimType = System.Security.Claims.ClaimTypes.Role
                     };
-                     options.Events = new JwtBearerEvents
+                options.Events = new JwtBearerEvents
                 {
                     OnTokenValidated = async context =>
                     {
@@ -96,7 +96,7 @@ public static class AuthenticationExtensions
             });
 
         services.AddAuthorization();
-        
+
         return services;
     }
 }

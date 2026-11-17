@@ -4,7 +4,7 @@ namespace MyApp.Domain.ValueObjects;
 
 public sealed record EmailAddress
 {
-    public string Value {get;}
+    public string Value { get; }
     private EmailAddress(string value)
     {
         Value = value;
@@ -27,7 +27,7 @@ public sealed record EmailAddress
         var local = trimmed[..at].ToLowerInvariant();
         var domain = trimmed[(at + 1)..].ToLowerInvariant();
 
-                return new EmailAddress($"{local}@{domain}");
+        return new EmailAddress($"{local}@{domain}");
     }
 
     private static bool IsValidFormat(string value)
@@ -43,6 +43,6 @@ public sealed record EmailAddress
             && !domain.StartsWith('.')
             && !domain.EndsWith('.');
     }
-// Esto hace que cuando se llama a un objeto de esta clase con el método .ToString(), reemplace el resultado con la propiedad .Value... Ej: para EmailAddress email, email.ToString() va a devolver lo mismo que email.Value.
+    // Esto hace que cuando se llama a un objeto de esta clase con el método .ToString(), reemplace el resultado con la propiedad .Value... Ej: para EmailAddress email, email.ToString() va a devolver lo mismo que email.Value.
     public override string ToString() => Value;
 }

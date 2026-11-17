@@ -2,20 +2,21 @@ using MyApp.Domain.Enums;
 using MyApp.Domain.Exceptions;
 using MyApp.Domain.ValueObjects;
 namespace MyApp.Domain.Entities;
+
 public sealed class User
 {
     // Este ID es para Entity Framework, que lo va a hacer su PK.
-    public UserId Id {get; private set;}
+    public UserId Id { get; private set; }
     // El rol es un enum, está tomado del archivo Domain/Enums/UserRoles.cs.
-    public UserRole Role {get; private set;}
-    public string Name {get; private set;}
-    public DateOnly DateOfBirth {get; private set;}
-    public DateTimeOffset DateCreated {get; private set;}
-    public EmailAddress Email {get; private set;}
-    public PasswordHash Password {get; private set;}
-    public List<Reaction>? Reactions {get; private set;}
+    public UserRole Role { get; private set; }
+    public string Name { get; private set; }
+    public DateOnly DateOfBirth { get; private set; }
+    public DateTimeOffset DateCreated { get; private set; }
+    public EmailAddress Email { get; private set; }
+    public PasswordHash Password { get; private set; }
+    public List<Reaction>? Reactions { get; private set; }
     public bool IsActive { get; private set; } = true;
-    private User() { Name = null!; Email = null!; Password = null!;}
+    private User() { Name = null!; Email = null!; Password = null!; }
     // Constructor
     public User(string name, DateOnly dateOfBirth, string email, string hash, DateTimeOffset now)
     {

@@ -77,7 +77,7 @@ public class ForumController : ControllerBase
         await _services.ChangeState(id, state, ct);
 
         return NoContent();
-}
+    }
 
     // elimina un foro
     [Authorize(Roles = "SysAdmin")]

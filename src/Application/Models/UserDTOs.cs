@@ -15,7 +15,7 @@ public record UserDTO(
     Guid UserId
     )
 {
-    public static UserDTO Create( User entity, DateTimeOffset now )
+    public static UserDTO Create(User entity, DateTimeOffset now)
     {
         DateOnly today = DateOnly.FromDateTime(now.DateTime);
         DateOnly birthDate = entity.DateOfBirth;
@@ -29,7 +29,7 @@ public record UserDTO(
             entity.DateCreated,
             entity.Id
         );
-        
+
     }
     public static List<UserDTO> CreateList(IEnumerable<User> entities, DateTimeOffset now)
     {
@@ -78,7 +78,7 @@ public record RestrictedUserDTO(
     Guid UserId
     )
 {
-    public static RestrictedUserDTO Create( User entity, DateTimeOffset now )
+    public static RestrictedUserDTO Create(User entity, DateTimeOffset now)
     {
         DateOnly today = DateOnly.FromDateTime(now.DateTime);
         DateOnly birthDate = entity.DateOfBirth;
@@ -90,7 +90,7 @@ public record RestrictedUserDTO(
             entity.Role.ToString(),
             entity.Id
         );
-        
+
     }
     public static List<RestrictedUserDTO> CreateList(IEnumerable<User> entities, DateTimeOffset now)
     {

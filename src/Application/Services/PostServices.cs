@@ -7,14 +7,16 @@ using MyApp.Domain.Exceptions;
 
 namespace MyApp.Application.Services;
 
-public sealed class PostServices{
+public sealed class PostServices
+{
     private readonly IPostRepository _repository;
     private readonly IClock _clock;
     private readonly ISanitizer _sanitizer;
     private readonly IUserRepository _userRepository;
     private readonly IForumRepository _forumRepository;
     private readonly BanServices _bans;
-    public PostServices(IPostRepository postRepository, IForumRepository forumRepository,IUserRepository userRepository, IClock clock, ISanitizer sanitizer, BanServices bans){
+    public PostServices(IPostRepository postRepository, IForumRepository forumRepository, IUserRepository userRepository, IClock clock, ISanitizer sanitizer, BanServices bans)
+    {
         _sanitizer = sanitizer;
         _repository = postRepository;
         _forumRepository = forumRepository;
@@ -38,8 +40,8 @@ public sealed class PostServices{
             // incluye los posts cuyo hidden sea false
             .Where(p => !p.Invisible)
             .Select(PostDTO.Create)
-            .ToList();   
-    }   
+            .ToList();
+    }
 
     public async Task<List<PostDTO>> GetByPoster(Guid id, CancellationToken ct)
     {
@@ -49,7 +51,7 @@ public sealed class PostServices{
         .Select(PostDTO.Create)
         .ToList();
     }
-    
+
     public async Task<List<PostDTO>> GetMyPosts(Guid userId, CancellationToken ct)
     {
         var entities = await _repository.GetByPoster((UserId)userId, ct);
@@ -63,7 +65,7 @@ public sealed class PostServices{
     {
         await _bans.EnsureNotBanned(userId, ct);
         if (userId == Guid.Empty)
-        throw new DomainException("A post must have an author.");
+            throw new DomainException("A post must have an author.");
 
         var entity = new Post(
             _sanitizer.Sanitize(dto.Body),
@@ -71,7 +73,7 @@ public sealed class PostServices{
             (ForumId)dto.Forum,
             _clock.UtcNow
         );
-         // verifica que el foro exista
+        // verifica que el foro exista
         var forum = await _forumRepository.GetById(entity.ForumId, ct);
         if (forum is null)
             throw new NotFoundException("Requested forum not found");
@@ -80,7 +82,7 @@ public sealed class PostServices{
             throw new DomainException(
             "Cannot create posts in an inactive forum.");
 
-          // verifica que el autor exista
+        // verifica que el autor exista
         var user = await _userRepository.GetById(entity.Poster, ct);
         if (user is null)
             throw new NotFoundException("Requested user not found");
@@ -102,7 +104,7 @@ public sealed class PostServices{
             "You can only edit your own posts.");
 
         var forum = await _forumRepository.GetById(entity.ForumId, ct);
-        
+
         if (forum is null)
             throw new NotFoundException("Requested forum not found");
         if (!forum.State)

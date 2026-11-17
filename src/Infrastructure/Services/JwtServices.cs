@@ -38,39 +38,39 @@ public class JwtServices : IJwtServices
     }
 
     public ClaimsPrincipal ValidateToken(string token)
+    {
+        var key = Encoding.ASCII.GetBytes(_config["Authentication:SecretForKey"]!);
+        var parameters = new TokenValidationParameters
+        {   // Verifica que el token tenga una firma válida
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            // Verifica que el token haya sido emitido por el usuario autorizado
+            ValidateIssuer = true,
+            ValidIssuer = _config["Authentication:Issuer"],
+            // Verifica que el token este dirigidio a la api
+            ValidateAudience = true,
+            ValidAudience = _config["Authentication:Audience"],
+            // Verifica que el token no este vencido
+            ValidateLifetime = true,
+            // No permite tolerancia adicional en las fechas de validez
+            ClockSkew = TimeSpan.Zero
+        };
+
+        try
         {
-            var key = Encoding.ASCII.GetBytes(_config["Authentication:SecretForKey"]!);
-            var parameters = new TokenValidationParameters
-            {   // Verifica que el token tenga una firma válida
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                // Verifica que el token haya sido emitido por el usuario autorizado
-                ValidateIssuer = true,
-                ValidIssuer = _config["Authentication:Issuer"],
-                // Verifica que el token este dirigidio a la api
-                ValidateAudience = true,
-                ValidAudience = _config["Authentication:Audience"],
-                // Verifica que el token no este vencido
-                ValidateLifetime = true,
-                 // No permite tolerancia adicional en las fechas de validez
-                ClockSkew = TimeSpan.Zero
-            };
+            var handler = new JwtSecurityTokenHandler();
+            var principal = handler.ValidateToken(token, parameters, out SecurityToken validatedToken);
 
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var principal = handler.ValidateToken(token, parameters, out SecurityToken validatedToken);
-
-                return principal;
-            }
-            catch (SecurityTokenException)
-            {
-                throw new AuthenticationFailedException("Invalid or expired token.");
-            }
-            catch (ArgumentException)
-            {
-                throw new AuthenticationFailedException("Invalid or expired token.");
-            }
-
+            return principal;
         }
+        catch (SecurityTokenException)
+        {
+            throw new AuthenticationFailedException("Invalid or expired token.");
+        }
+        catch (ArgumentException)
+        {
+            throw new AuthenticationFailedException("Invalid or expired token.");
+        }
+
+    }
 }

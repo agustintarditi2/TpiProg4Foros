@@ -10,8 +10,8 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-             migrationBuilder.Sql(
-        "UPDATE \"Users\" SET \"Role\" = 'User' WHERE \"Role\" = 'MOD';");
+            migrationBuilder.Sql(
+       "UPDATE \"Users\" SET \"Role\" = 'User' WHERE \"Role\" = 'MOD';");
         }
 
         /// <inheritdoc />

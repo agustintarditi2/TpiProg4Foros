@@ -32,7 +32,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.Property(p => p.DateCreated).IsRequired();
         builder.Property(p => p.DateEdited);
         builder.Property(p => p.Edited).IsRequired();
-        
+
         builder.Ignore(p => p.Invisible);
 
         builder.Property(p => p.HiddenByUser)
@@ -48,7 +48,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .WithMany()
             .HasForeignKey(p => p.Poster)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.Property(p => p.ForumId)
             .HasConversion(id => id.Value, v => new ForumId(v))
             .IsRequired();

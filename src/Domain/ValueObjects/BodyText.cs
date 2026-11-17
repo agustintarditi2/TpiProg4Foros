@@ -5,8 +5,8 @@ namespace MyApp.Domain.ValueObjects;
 public sealed record BodyText
 {
     public const int MaxLength = 299999;
-    public string Value {get;}
-    private BodyText(string value) {Value = value;}
+    public string Value { get; }
+    private BodyText(string value) { Value = value; }
 
 
     public static BodyText Create(string value)
@@ -30,5 +30,5 @@ public sealed record BodyText
     {
         return BodyText.Create("*Este contenido ha sido eliminado.*");
     }
-    
+
 }
